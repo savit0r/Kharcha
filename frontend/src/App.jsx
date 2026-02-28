@@ -1,0 +1,27 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import MainLayout from "./layout/MainLayout";
+import Dashboard from "./pages/Dashboard";
+import AddExpense from "./pages/AddExpense";
+import Analytics from "./pages/Analytics";
+import Login from "./pages/Login";
+
+function App() {
+  return (
+    <Routes>
+      {/* Redirect root to dashboard */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Public */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Protected Layout */}
+      <Route element={<MainLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/add-expense" element={<AddExpense />} />
+        <Route path="/analytics" element={<Analytics />} />
+      </Route>
+    </Routes>
+  );
+}
+
+export default App;
