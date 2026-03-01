@@ -1,13 +1,33 @@
 import express from "express";
 import dotenv from "dotenv";
-dotenv.config();
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import mongoose from "mongoose";
+import authRoutes from "./routes/authRoutes.js";
 
+
+dotenv.config();
 const app = express();
 
-app.get("/", (req, res) => {
-    res.send("Hello world")
-})
+//Middleware
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 
-app.listen(3000, () => {
-    console.log("server is running on port 3000")
-})
+// Routes
+app.use("/api/auth", authRoutes);
+
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log("Database connected")
+    })
+    .catch((err) => {
+        console.log(err)
+    })
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`)
+});
