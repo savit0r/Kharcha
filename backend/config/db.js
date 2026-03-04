@@ -6,7 +6,6 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     max: 20,                       // max connections in pool
     idleTimeoutMillis: 30000,      // close idle connections after 30s
-    connectionTimeoutMillis: 5000, // fail if can't connect in 5s
 });
 
 // Prevent app crash on unexpected errors

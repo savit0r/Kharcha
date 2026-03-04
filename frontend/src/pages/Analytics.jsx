@@ -10,16 +10,29 @@ const INCOME_COLORS = ["#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#8b5cf6"];
 
 function Analytics() {
     const [dashData, setDashData] = useState(null);
+    const [budgets, setBudgets] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${API}/dashboard`, { credentials: "include" })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.totals) setDashData(data);
-            })
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        const fetchData = async () => {
+            try {
+                const [dashRes, budgetRes] = await Promise.all([
+                    fetch(`${API}/dashboard`, { credentials: "include" }),
+                    fetch(`${API}/budgets`, { credentials: "include" })
+                ]);
+                const dash = await dashRes.json();
+                const budg = await budgetRes.json();
+
+                if (dash.totals) setDashData(dash);
+                if (Array.isArray(budg)) setBudgets(budg);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const totalIncome = dashData?.totals?.income ?? 0;
@@ -73,16 +86,23 @@ function Analytics() {
                             {topExpenseCategories.map((cat, i) => {
                                 const maxTotal = topExpenseCategories[0]?.total || 1;
                                 const pct = (cat.total / maxTotal) * 100;
+                                const budgetData = budgets.find(b => b.category_id === cat.category_id);
                                 return (
                                     <div key={i}>
                                         <div className="flex justify-between text-sm mb-1.5">
-                                            <span className="text-neutral-700 dark:text-neutral-300 font-medium">{cat.category_name}</span>
+                                            <span className="text-neutral-700 dark:text-neutral-300 font-medium flex items-center gap-2">
+                                                {cat.category_name}
+                                                {budgetData?.over_budget && <span className="text-[10px] bg-red-500/10 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-wider">Over Budget</span>}
+                                            </span>
                                             <span className="text-red-600 dark:text-red-400 font-semibold tracking-wide">₹{cat.total.toLocaleString("en-IN")}</span>
                                         </div>
                                         <div className="w-full bg-neutral-100 dark:bg-neutral-700/50 rounded-full h-2">
                                             <div
-                                                className="h-2 rounded-full transition-all duration-500"
-                                                style={{ width: `${pct}%`, backgroundColor: EXPENSE_COLORS[i % EXPENSE_COLORS.length] }}
+                                                className={`h-2 rounded-full transition-all duration-500 ${budgetData?.over_budget ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : ''}`}
+                                                style={{
+                                                    width: `${pct}%`,
+                                                    backgroundColor: budgetData?.over_budget ? undefined : EXPENSE_COLORS[i % EXPENSE_COLORS.length]
+                                                }}
                                             ></div>
                                         </div>
                                     </div>

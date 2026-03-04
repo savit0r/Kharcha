@@ -11,6 +11,7 @@ function Navbar() {
             case "/dashboard": return "Dashboard";
             case "/add-expense": return "Add Expense";
             case "/analytics": return "Analytics";
+            case "/budgets": return "Budgets";
             default: return "Kharcha";
         }
     };

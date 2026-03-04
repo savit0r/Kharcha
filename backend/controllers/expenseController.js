@@ -22,9 +22,37 @@ export const addTransaction = async (req, res) => {
             [req.userId, title, amount, type, category_id || null, date || new Date()]
         );
 
+        let isOverBudget = false;
+
+        // Check if this expense pushed us over the budget limit
+        if (type === "expense" && category_id) {
+            // Get current month spend + this new transaction
+            const spendRes = await pool.query(
+                `SELECT SUM(amount) as total_spend 
+                 FROM transactions 
+                 WHERE user_id = $1 AND category_id = $2 AND type = 'expense'
+                 AND date_trunc('month', date) = date_trunc('month', CURRENT_DATE)`,
+                [req.userId, category_id]
+            );
+
+            const budgetRes = await pool.query(
+                `SELECT monthly_limit FROM budgets WHERE user_id = $1 AND category_id = $2`,
+                [req.userId, category_id]
+            );
+
+            if (budgetRes.rows.length > 0) {
+                const totalSpend = parseFloat(spendRes.rows[0].total_spend || 0);
+                const limit = parseFloat(budgetRes.rows[0].monthly_limit);
+                if (totalSpend > limit) {
+                    isOverBudget = true;
+                }
+            }
+        }
+
         res.status(201).json({
             message: "Transaction added",
             transaction: result.rows[0],
+            warning: isOverBudget ? "Over Budget" : null
         });
     } catch (error) {
         console.error(error);

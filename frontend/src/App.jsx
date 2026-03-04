@@ -3,6 +3,7 @@ import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import AddExpense from "./pages/AddExpense";
 import Analytics from "./pages/Analytics";
+import Budgets from "./pages/Budgets";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add-expense" element={<AddExpense />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/budgets" element={<Budgets />} />
       </Route>
     </Routes>
   );

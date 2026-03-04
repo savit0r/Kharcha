@@ -47,6 +47,15 @@ const createTables = async () => {
                 date DATE NOT NULL DEFAULT CURRENT_DATE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS budgets (
+                id SERIAL PRIMARY KEY,
+                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+                monthly_limit DECIMAL(12, 2) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, category_id)
+            );
         `);
 
         // Seed default categories (only if none exist)
