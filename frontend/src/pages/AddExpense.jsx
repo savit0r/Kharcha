@@ -15,9 +15,17 @@ function AddExpense() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // Recurring state
+    const [isRecurring, setIsRecurring] = useState(false);
+    const [recurringFrequency, setRecurringFrequency] = useState("monthly");
+
     // Custom category state
     const [showCustom, setShowCustom] = useState(false);
     const [customName, setCustomName] = useState("");
+
+    // Receipt state
+    const [receiptFile, setReceiptFile] = useState(null);
+    const [receiptPreview, setReceiptPreview] = useState(null);
 
     const navigate = useNavigate();
 
@@ -75,6 +83,29 @@ function AddExpense() {
         setLoading(true);
 
         try {
+            let receipt_url = null;
+
+            // 1. Upload receipt if exists
+            if (receiptFile) {
+                const formData = new FormData();
+                formData.append("receipt", receiptFile);
+
+                const uploadRes = await fetch(`${API}/upload`, {
+                    method: "POST",
+                    credentials: "include",
+                    body: formData
+                });
+
+                const uploadData = await uploadRes.json();
+
+                if (uploadRes.ok) {
+                    receipt_url = uploadData.filePath;
+                } else {
+                    throw new Error(uploadData.message || "Failed to upload receipt");
+                }
+            }
+
+            // 2. Submit transaction data
             const res = await fetch(`${API}/transactions`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -85,6 +116,9 @@ function AddExpense() {
                     type,
                     category_id: categoryId || null,
                     date,
+                    receipt_url,
+                    is_recurring: isRecurring,
+                    recurring_frequency: isRecurring ? recurringFrequency : null
                 }),
             });
 
@@ -99,7 +133,11 @@ function AddExpense() {
                 setTitle("");
                 setAmount("");
                 setCategoryId("");
+                setIsRecurring(false);
+                setRecurringFrequency("monthly");
                 setDate(new Date().toISOString().split("T")[0]);
+                setReceiptFile(null);
+                setReceiptPreview(null);
                 setTimeout(() => {
                     setMessage("");
                     setWarning("");
@@ -111,6 +149,18 @@ function AddExpense() {
             setError("Something went wrong");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                setError("File is too large (max 5MB)");
+                return;
+            }
+            setReceiptFile(file);
+            setReceiptPreview(URL.createObjectURL(file));
         }
     };
 
@@ -229,6 +279,72 @@ function AddExpense() {
                         onChange={(e) => setDate(e.target.value)}
                         className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-xl px-4 py-3 w-full text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all outline-none dark:[color-scheme:dark]"
                     />
+                </div>
+
+                {/* Recurring Checkbox */}
+                <div className="bg-neutral-50 dark:bg-neutral-700/30 border border-neutral-200 dark:border-neutral-700/50 p-4 rounded-xl">
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                        <div className="relative flex items-center">
+                            <input
+                                type="checkbox"
+                                checked={isRecurring}
+                                onChange={(e) => setIsRecurring(e.target.checked)}
+                                className="peer w-5 h-5 appearance-none border-2 border-neutral-300 dark:border-neutral-500 rounded text-indigo-600 checked:bg-indigo-600 checked:border-indigo-600 focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all"
+                            />
+                            <svg className="absolute w-5 h-5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Set as recurring transaction</span>
+                    </label>
+
+                    {isRecurring && (
+                        <div className="mt-4 pl-8">
+                            <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 block mb-2">Frequency</label>
+                            <div className="relative">
+                                <select
+                                    value={recurringFrequency}
+                                    onChange={(e) => setRecurringFrequency(e.target.value)}
+                                    className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-lg px-4 py-2.5 w-full text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-indigo-500/50 transition-all outline-none appearance-none pr-10 text-sm"
+                                >
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                                <div className="absolute top-1/2 right-3 -translate-y-1/2 pointer-events-none text-neutral-500">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Receipt Upload */}
+                <div>
+                    <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-2">Receipt (Optional)</label>
+
+                    <div className="flex items-center justify-center w-full">
+                        <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-neutral-300 dark:border-neutral-600 border-dashed rounded-xl cursor-pointer bg-neutral-50 dark:bg-neutral-800/50 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 transition-colors ${receiptPreview ? 'border-indigo-500' : ''}`}>
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                {receiptPreview ? (
+                                    <div className="relative">
+                                        <img src={receiptPreview} alt="Receipt preview" className="h-24 object-contain rounded" />
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded opacity-0 hover:opacity-100 transition-opacity">
+                                            <p className="text-white text-xs font-bold">Change</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <svg className="w-8 h-8 mb-3 text-neutral-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                        </svg>
+                                        <p className="mb-2 text-sm text-neutral-500 dark:text-neutral-400"><span className="font-semibold">Click to upload</span></p>
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">PNG, JPG or JPEG (MAX 5MB)</p>
+                                    </>
+                                )}
+                            </div>
+                            <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                        </label>
+                    </div>
                 </div>
 
                 <button

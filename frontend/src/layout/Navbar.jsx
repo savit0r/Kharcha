@@ -7,6 +7,7 @@ function Navbar() {
     const { theme, toggleTheme } = useTheme();
 
     const getPageTitle = () => {
+        if (location.pathname.startsWith("/customers")) return "Ledger";
         switch (location.pathname) {
             case "/dashboard": return "Dashboard";
             case "/add-expense": return "Add Expense";

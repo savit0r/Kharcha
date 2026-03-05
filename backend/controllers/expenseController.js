@@ -1,11 +1,12 @@
 import pool from "../config/db.js";
+import { logActivity } from "../utils/logger.js";
 
 // @desc    Add a transaction
 // @route   POST /api/transactions
 // @access  Private
 export const addTransaction = async (req, res) => {
     try {
-        const { title, amount, type, category_id, date } = req.body;
+        const { title, amount, type, category_id, date, is_recurring, recurring_frequency } = req.body;
 
         if (!title || !amount || !type) {
             return res.status(400).json({ message: "Title, amount, and type are required" });
@@ -16,10 +17,20 @@ export const addTransaction = async (req, res) => {
         }
 
         const result = await pool.query(
-            `INSERT INTO transactions (user_id, title, amount, type, category_id, date)
-             VALUES ($1, $2, $3, $4, $5, $6)
+            `INSERT INTO transactions (user_id, title, amount, type, category_id, date, is_recurring, recurring_frequency, last_processed_date)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING *`,
-            [req.userId, title, amount, type, category_id || null, date || new Date()]
+            [
+                req.userId,
+                title,
+                amount,
+                type,
+                category_id || null,
+                date || new Date(),
+                is_recurring || false,
+                is_recurring ? recurring_frequency : null,
+                is_recurring ? (date || new Date()) : null
+            ]
         );
 
         let isOverBudget = false;
@@ -49,11 +60,17 @@ export const addTransaction = async (req, res) => {
             }
         }
 
+        const warningMessage = isOverBudget ? "Over budget" : null;
+
         res.status(201).json({
-            message: "Transaction added",
+            message: warningMessage || "Transaction added successfully",
             transaction: result.rows[0],
-            warning: isOverBudget ? "Over Budget" : null
+            warning: warningMessage ? "Over budget" : null,
         });
+
+        // Fire and forget log
+        logActivity(req.userId, 'ADD_TRANSACTION', `Added ${type} of ₹${amount} for ${title}`);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
@@ -139,7 +156,11 @@ export const deleteTransaction = async (req, res) => {
 
         await pool.query("DELETE FROM transactions WHERE id = $1", [id]);
 
-        res.status(200).json({ message: "Transaction deleted" });
+        res.status(200).json({ message: "Transaction deleted successfully" });
+
+        // Fire and forget log
+        logActivity(req.userId, 'DELETE_TRANSACTION', `Deleted transaction #${id}`);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });

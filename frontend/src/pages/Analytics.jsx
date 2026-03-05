@@ -63,7 +63,18 @@ function Analytics() {
 
     return (
         <div className="max-w-7xl mx-auto pb-10">
-            <h2 className="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100 tracking-tight">Analytics</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">Analytics</h2>
+                <a
+                    href={`${API}/export/transactions/pdf`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors shadow-sm"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Export Statement
+                </a>
+            </div>
 
             {/* Summary Cards */}
             <SummaryCards totalIncome={totalIncome} totalExpense={totalExpense} />

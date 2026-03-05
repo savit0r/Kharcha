@@ -16,6 +16,7 @@ const createTables = async () => {
                 name VARCHAR(100) NOT NULL,
                 email VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
+                role VARCHAR(20) DEFAULT 'owner' CHECK (role IN ('owner', 'staff')),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
@@ -45,6 +46,10 @@ const createTables = async () => {
                 amount DECIMAL(12, 2) NOT NULL,
                 type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
                 date DATE NOT NULL DEFAULT CURRENT_DATE,
+                receipt_url VARCHAR(1024),
+                is_recurring BOOLEAN DEFAULT false,
+                recurring_frequency VARCHAR(20) CHECK (recurring_frequency IN ('daily', 'weekly', 'monthly', 'yearly')),
+                last_processed_date DATE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
@@ -55,6 +60,33 @@ const createTables = async () => {
                 monthly_limit DECIMAL(12, 2) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(user_id, category_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS customers (
+                id SERIAL PRIMARY KEY,
+                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                name VARCHAR(100) NOT NULL,
+                phone VARCHAR(20),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS ledger_entries (
+                id SERIAL PRIMARY KEY,
+                customer_id INT NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+                amount DECIMAL(12, 2) NOT NULL,
+                type VARCHAR(10) NOT NULL CHECK (type IN ('credit', 'debit')),
+                note TEXT,
+                date DATE NOT NULL DEFAULT CURRENT_DATE,
+                receipt_url VARCHAR(1024),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS activity_logs (
+                id SERIAL PRIMARY KEY,
+                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                action VARCHAR(100) NOT NULL,
+                description TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 

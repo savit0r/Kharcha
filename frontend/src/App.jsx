@@ -4,6 +4,8 @@ import Dashboard from "./pages/Dashboard";
 import AddExpense from "./pages/AddExpense";
 import Analytics from "./pages/Analytics";
 import Budgets from "./pages/Budgets";
+import Customers from "./pages/Customers";
+import Ledger from "./pages/Ledger";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -23,6 +25,8 @@ function App() {
         <Route path="/add-expense" element={<AddExpense />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/budgets" element={<Budgets />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/customers/:id" element={<Ledger />} />
       </Route>
     </Routes>
   );

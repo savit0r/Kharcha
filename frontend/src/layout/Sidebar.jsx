@@ -12,7 +12,8 @@ function Sidebar() {
                     { path: "/dashboard", label: "Dashboard" },
                     { path: "/add-expense", label: "Add Expense" },
                     { path: "/analytics", label: "Analytics" },
-                    { path: "/budgets", label: "Budgets" }
+                    { path: "/budgets", label: "Budgets" },
+                    { path: "/customers", label: "Ledger" }
                 ].map((item) => (
                     <NavLink
                         key={item.path}

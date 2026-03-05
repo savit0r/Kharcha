@@ -4,6 +4,7 @@ import FilterBar from "../components/FilterBar";
 import TransactionTable from "../components/TransactionTable";
 import MonthlyTrendChart from "../components/MonthlyTrendChart";
 import CategoryPieChart from "../components/CategoryPieChart";
+import ActivityFeed from "../components/ActivityFeed";
 
 const API = "http://localhost:3000/api";
 
@@ -109,10 +110,14 @@ function Dashboard() {
 
             <SummaryCards totalIncome={totalIncome} totalExpense={totalExpense} />
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <MonthlyTrendChart data={dashData?.monthlyTrend} />
-                <CategoryPieChart data={dashData?.categorySummary} />
+            {/* Top Row: Charts & Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                <div className="lg:col-span-2">
+                    <MonthlyTrendChart data={dashData?.monthlyTrend} />
+                </div>
+                <div className="lg:col-span-1">
+                    <ActivityFeed />
+                </div>
             </div>
 
             <FilterBar
