@@ -1,8 +1,64 @@
 import pool from "../config/db.js";
 import PDFDocument from "pdfkit";
 
+// Helper: Build the base query with optional date-range filtering
+const buildTransactionQuery = (userId, startDate, endDate) => {
+    let query = `
+        SELECT t.title, t.amount, t.type, t.date, c.name as category_name
+        FROM transactions t
+        LEFT JOIN categories c ON t.category_id = c.id
+        WHERE t.user_id = $1
+    `;
+    const params = [userId];
+
+    if (startDate) {
+        params.push(startDate);
+        query += ` AND t.date >= $${params.length}`;
+    }
+    if (endDate) {
+        params.push(endDate);
+        query += ` AND t.date <= $${params.length}`;
+    }
+
+    query += ` ORDER BY t.date DESC, t.created_at DESC`;
+    return { query, params };
+};
+
+// @desc    Export transactions to CSV
+// @route   GET /api/export/transactions/csv?startDate=...&endDate=...
+// @access  Private
+export const exportTransactionsCSV = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const { query, params } = buildTransactionQuery(req.userId, startDate, endDate);
+        const result = await pool.query(query, params);
+        const transactions = result.rows;
+
+        // Build CSV content
+        const header = "Date,Title,Category,Type,Amount";
+        const rows = transactions.map((t) => {
+            const date = new Date(t.date).toLocaleDateString("en-IN");
+            // Escape fields that may contain commas or quotes
+            const title = `"${(t.title || "").replace(/"/g, '""')}"`;
+            const category = `"${(t.category_name || "Uncategorized").replace(/"/g, '""')}"`;
+            const type = t.type;
+            const amount = `${t.type === "income" ? "" : "-"}${parseFloat(t.amount).toFixed(2)}`;
+            return `${date},${title},${category},${type},${amount}`;
+        });
+
+        const csv = [header, ...rows].join("\n");
+
+        const filename = `Spendora_Export_${new Date().toISOString().split("T")[0]}.csv`;
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.send(csv);
+    } catch (error) {
+        next(error);
+    }
+};
+
 // @desc    Export transactions to PDF
-// @route   GET /api/export/transactions/pdf
+// @route   GET /api/export/transactions/pdf?startDate=...&endDate=...
 // @access  Private
 export const exportTransactionsPDF = async (req, res) => {
     try {
@@ -11,15 +67,10 @@ export const exportTransactionsPDF = async (req, res) => {
         if (userRes.rows.length === 0) return res.status(404).send("User not found");
         const user = userRes.rows[0];
 
-        // Fetch Transactions
-        const query = `
-            SELECT t.title, t.amount, t.type, t.date, c.name as category_name
-            FROM transactions t
-            LEFT JOIN categories c ON t.category_id = c.id
-            WHERE t.user_id = $1
-            ORDER BY t.date DESC, t.created_at DESC
-        `;
-        const result = await pool.query(query, [req.userId]);
+        // Fetch Transactions (with optional date filtering)
+        const { startDate, endDate } = req.query;
+        const { query, params } = buildTransactionQuery(req.userId, startDate, endDate);
+        const result = await pool.query(query, params);
         const transactions = result.rows;
 
         // Initialize PDF Document
@@ -27,17 +78,20 @@ export const exportTransactionsPDF = async (req, res) => {
 
         // Setup response headers for PDF download
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="Kharcha_Statement_${new Date().toISOString().split('T')[0]}.pdf"`);
+        res.setHeader('Content-Disposition', `attachment; filename="Spendora_Statement_${new Date().toISOString().split('T')[0]}.pdf"`);
 
         // Pipe the PDF directly to the response stream
         doc.pipe(res);
 
         // Header
-        doc.fontSize(24).text('Kharcha Statement', { align: 'center' });
+        doc.fontSize(24).text('Spendora Statement', { align: 'center' });
         doc.moveDown();
         doc.fontSize(12).text(`Name: ${user.name}`);
         doc.text(`Email: ${user.email}`);
         doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`);
+        if (startDate || endDate) {
+            doc.text(`Period: ${startDate || 'Beginning'} to ${endDate || 'Present'}`);
+        }
         doc.moveDown(2);
 
         // Summary

@@ -6,7 +6,7 @@ import { generateAndSendOtp, verifyOtpCode } from "../utils/otpService.js";
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
-export const registerUser = async (req, res) => {
+export const registerUser = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
 
@@ -34,15 +34,14 @@ export const registerUser = async (req, res) => {
             user: result.rows[0],
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        next(error);
     }
 };
 
 // @desc    Login with password
 // @route   POST /api/auth/login
 // @access  Public
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -65,22 +64,22 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        setAuthCookies(res, user.id);
+        const token = setAuthCookies(res, user.id);
 
         res.status(200).json({
             message: "Login successful",
+            token,
             user: { id: user.id, name: user.name, email: user.email },
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        next(error);
     }
 };
 
 // @desc    Send OTP to user's email
 // @route   POST /api/auth/send-otp
 // @access  Public (rate limited)
-export const sendOtp = async (req, res) => {
+export const sendOtp = async (req, res, next) => {
     try {
         const { email } = req.body;
 
@@ -100,15 +99,14 @@ export const sendOtp = async (req, res) => {
 
         res.status(200).json({ message: "OTP sent to your email" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to send OTP" });
+        next(error);
     }
 };
 
 // @desc    Verify OTP and login
 // @route   POST /api/auth/verify-otp
 // @access  Public (rate limited)
-export const verifyOtp = async (req, res) => {
+export const verifyOtp = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
 
@@ -127,22 +125,26 @@ export const verifyOtp = async (req, res) => {
             [email]
         );
 
-        setAuthCookies(res, user.rows[0].id);
+        const token = setAuthCookies(res, user.rows[0].id);
 
         res.status(200).json({
             message: "Login successful",
+            token,
             user: user.rows[0],
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        next(error);
     }
 };
 
 // @desc    Logout user
 // @route   POST /api/auth/logout
 // @access  Private
-export const logoutUser = (req, res) => {
-    clearAuthCookies(res);
-    res.status(200).json({ message: "Logged out successfully" });
+export const logoutUser = (req, res, next) => {
+    try {
+        clearAuthCookies(res);
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        next(error);
+    }
 };

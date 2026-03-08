@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import SummaryCards from "../components/SummaryCards";
+import { toast } from "sonner";
 import FilterBar from "../components/FilterBar";
 import TransactionTable from "../components/TransactionTable";
 import MonthlyTrendChart from "../components/MonthlyTrendChart";
@@ -65,7 +66,7 @@ function Dashboard() {
                 const data = await res.json();
                 if (Array.isArray(data)) setTransactions(data);
             } catch (error) {
-                console.error("Failed to fetch transactions:", error);
+                toast.error("Failed to fetch transactions");
             } finally {
                 setLoading(false);
             }
@@ -85,9 +86,12 @@ function Dashboard() {
             if (res.ok) {
                 setTransactions(transactions.filter((t) => t.id !== id));
                 fetchDashboard(); // Refresh totals & charts
+                toast.success("Transaction deleted");
+            } else {
+                toast.error("Failed to delete transaction");
             }
         } catch (error) {
-            console.error("Failed to delete:", error);
+            toast.error("Failed to connect to server");
         }
     };
 
@@ -103,6 +107,17 @@ function Dashboard() {
         setStartDate("");
         setEndDate("");
     };
+
+    if (!dashData) {
+        return (
+            <div className="max-w-7xl mx-auto pb-10">
+                <h2 className="text-3xl font-bold mb-6 text-neutral-900 dark:text-neutral-100 tracking-tight">Dashboard</h2>
+                <div className="flex justify-center items-center py-20 min-h-[400px]">
+                    <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-200 dark:border-neutral-600 border-t-indigo-500"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-7xl mx-auto pb-10">

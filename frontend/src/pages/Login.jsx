@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
 
 function Login() {
     const [mode, setMode] = useState("password"); // "password" or "otp"
@@ -7,15 +8,12 @@ function Login() {
     const [password, setPassword] = useState("");
     const [otp, setOtp] = useState("");
     const [otpSent, setOtpSent] = useState(false);
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     // Password login
     const handlePasswordLogin = async (e) => {
         e.preventDefault();
-        setError("");
         setLoading(true);
 
         try {
@@ -26,15 +24,25 @@ function Login() {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                // Rate limiter or non-JSON response
+                toast.error(res.status === 429
+                    ? "Too many login attempts. Please try again later."
+                    : "Unexpected server response. Please try again.");
+                return;
+            }
 
             if (res.ok) {
+                toast.success(data.message || "Login successful");
                 navigate("/dashboard");
             } else {
-                setError(data.message);
+                toast.error(data.message || "Login failed");
             }
         } catch (err) {
-            setError("Something went wrong. Is the server running?");
+            toast.error("Something went wrong. Is the server running?");
         } finally {
             setLoading(false);
         }
@@ -43,8 +51,6 @@ function Login() {
     // Send OTP
     const handleSendOtp = async (e) => {
         e.preventDefault();
-        setError("");
-        setMessage("");
         setLoading(true);
 
         try {
@@ -54,16 +60,24 @@ function Login() {
                 body: JSON.stringify({ email }),
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                toast.error(res.status === 429
+                    ? "Too many OTP requests. Please try again later."
+                    : "Unexpected server response. Please try again.");
+                return;
+            }
 
             if (res.ok) {
                 setOtpSent(true);
-                setMessage(data.message);
+                toast.success(data.message || "OTP sent to your email");
             } else {
-                setError(data.message);
+                toast.error(data.message || "Failed to send OTP");
             }
         } catch (err) {
-            setError("Something went wrong. Is the server running?");
+            toast.error("Something went wrong. Is the server running?");
         } finally {
             setLoading(false);
         }
@@ -72,8 +86,6 @@ function Login() {
     // Verify OTP
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
-        setError("");
-        setMessage("");
         setLoading(true);
 
         try {
@@ -84,15 +96,24 @@ function Login() {
                 body: JSON.stringify({ email, otp }),
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                toast.error(res.status === 429
+                    ? "Too many verification attempts. Please try again later."
+                    : "Unexpected server response. Please try again.");
+                return;
+            }
 
             if (res.ok) {
+                toast.success(data.message || "OTP Verified Successfully");
                 navigate("/dashboard");
             } else {
-                setError(data.message);
+                toast.error(data.message || "Verification failed");
             }
         } catch (err) {
-            setError("Something went wrong. Is the server running?");
+            toast.error("Something went wrong. Is the server running?");
         } finally {
             setLoading(false);
         }
@@ -101,8 +122,6 @@ function Login() {
     // Switch modes
     const toggleMode = () => {
         setMode(mode === "password" ? "otp" : "password");
-        setError("");
-        setMessage("");
         setOtpSent(false);
         setOtp("");
         setPassword("");
@@ -117,21 +136,18 @@ function Login() {
                 {/* Mode toggle */}
                 <div className="flex bg-slate-700/30 p-1 rounded-xl mb-8">
                     <button
-                        onClick={() => { setMode("password"); setError(""); setMessage(""); setOtpSent(false); }}
+                        onClick={() => { setMode("password"); setOtpSent(false); }}
                         className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${mode === "password" ? "bg-slate-600 text-white shadow-sm border border-slate-500/50" : "text-slate-400 hover:text-slate-200"}`}
                     >
                         Password
                     </button>
                     <button
-                        onClick={() => { setMode("otp"); setError(""); setMessage(""); }}
+                        onClick={() => { setMode("otp"); }}
                         className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${mode === "otp" ? "bg-slate-600 text-white shadow-sm border border-slate-500/50" : "text-slate-400 hover:text-slate-200"}`}
                     >
                         OTP Code
                     </button>
                 </div>
-
-                {message && <p className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-lg text-sm mb-6 text-center">{message}</p>}
-                {error && <p className="text-rose-400 bg-rose-500/10 border border-rose-500/20 px-4 py-3 rounded-lg text-sm mb-6 text-center">{error}</p>}
 
                 {/* Password Login Form */}
                 {mode === "password" && (
@@ -204,7 +220,7 @@ function Login() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => { setOtpSent(false); setOtp(""); setError(""); setMessage(""); }}
+                            onClick={() => { setOtpSent(false); setOtp(""); }}
                             className="text-sm text-indigo-400 font-medium hover:text-indigo-300 hover:underline transition-colors py-2"
                         >
                             Use a different email / Resend Code

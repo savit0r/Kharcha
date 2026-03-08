@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function LedgerEntryModal({ isOpen, onClose, onSubmit, entryType, customerName, error, formLoading }) {
+function LedgerEntryModal({ isOpen, onClose, onSubmit, entryType, customerName, formLoading }) {
     const [amount, setAmount] = useState("");
     const [note, setNote] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -29,7 +29,6 @@ function LedgerEntryModal({ isOpen, onClose, onSubmit, entryType, customerName, 
                     </h3>
                 </div>
                 <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-5">
-                    {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
 
                     <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-lg">₹</span>

@@ -1,7 +1,12 @@
 import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
-    const token = req.cookies.accessToken;
+    // Support both cookie-based auth (web) and Bearer token (mobile/React Native)
+    let token = req.cookies.accessToken;
+
+    if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+        token = req.headers.authorization.split(" ")[1];
+    }
 
     if (!token) {
         return res.status(401).json({ message: "Not authenticated. Please login." });

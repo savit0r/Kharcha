@@ -13,7 +13,7 @@ function Navbar() {
             case "/add-expense": return "Add Expense";
             case "/analytics": return "Analytics";
             case "/budgets": return "Budgets";
-            default: return "Kharcha";
+            default: return "Spendora";
         }
     };
 

@@ -1,18 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
 
 function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage("");
-        setError("");
 
         try {
             const res = await fetch("http://localhost:3000/api/auth/register", {
@@ -24,13 +21,13 @@ function Register() {
             const data = await res.json();
 
             if (res.ok) {
-                setMessage(data.message);
+                toast.success(data.message || "Account created successfully!");
                 setTimeout(() => navigate("/login"), 1500);
             } else {
-                setError(data.message);
+                toast.error(data.message || "Registration failed");
             }
         } catch (err) {
-            setError("Something went wrong. Is the server running?");
+            toast.error("Something went wrong. Is the server running?");
         }
     };
 
@@ -39,9 +36,6 @@ function Register() {
             <div className="bg-slate-800 border border-slate-700/50 p-10 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden backdrop-blur-sm">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
                 <h2 className="text-3xl font-bold mb-8 text-center tracking-tight text-white">Create Account</h2>
-
-                {message && <p className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-lg text-sm mb-6 text-center">{message}</p>}
-                {error && <p className="text-rose-400 bg-rose-500/10 border border-rose-500/20 px-4 py-3 rounded-lg text-sm mb-6 text-center">{error}</p>}
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                     <div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import LedgerHeader from "../components/LedgerHeader";
 import LedgerBalanceCard from "../components/LedgerBalanceCard";
 import LedgerActionButtons from "../components/LedgerActionButtons";
@@ -21,7 +22,6 @@ function Ledger() {
     const [showModal, setShowModal] = useState(false);
     const [entryType, setEntryType] = useState("credit"); // credit = gave, debit = got
     const [formLoading, setFormLoading] = useState(false);
-    const [error, setError] = useState("");
 
     const fetchLedgerData = async () => {
         try {
@@ -33,11 +33,11 @@ function Ledger() {
                 setNetBalance(data.net_balance);
                 setEntries(data.entries);
             } else {
-                setError(data.message);
+                toast.error(data.message || "Failed to load ledger data");
                 if (res.status === 404) navigate("/customers");
             }
         } catch (error) {
-            console.error("Failed to fetch ledger:", error);
+            toast.error("Failed to fetch ledger");
         } finally {
             setLoading(false);
         }
@@ -48,7 +48,6 @@ function Ledger() {
     }, [id]);
 
     const handleAddEntry = async (entryData) => {
-        setError("");
         setFormLoading(true);
 
         try {
@@ -63,11 +62,12 @@ function Ledger() {
             if (res.ok) {
                 setShowModal(false);
                 fetchLedgerData();
+                toast.success("Transaction recorded");
             } else {
-                setError(data.message);
+                toast.error(data.message || "Failed to add entry");
             }
         } catch (err) {
-            setError("Something went wrong");
+            toast.error("Something went wrong");
         } finally {
             setFormLoading(false);
         }
@@ -111,7 +111,6 @@ function Ledger() {
                 onSubmit={handleAddEntry}
                 entryType={entryType}
                 customerName={customer.name}
-                error={error}
                 formLoading={formLoading}
             />
         </div>

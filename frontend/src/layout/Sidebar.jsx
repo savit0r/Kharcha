@@ -4,7 +4,7 @@ function Sidebar() {
     return (
         <div className="w-64 hidden md:flex bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 flex-col flex-shrink-0 h-screen transition-all duration-300">
             <div className="p-6 h-16 flex items-center border-b border-neutral-200 dark:border-neutral-700">
-                <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 bg-clip-text">Kharcha</h2>
+                <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 bg-clip-text">Spendora</h2>
             </div>
 
             <nav className="flex flex-col gap-2 p-4 flex-1 overflow-y-auto">

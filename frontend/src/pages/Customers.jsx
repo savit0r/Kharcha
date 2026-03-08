@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const API = "http://localhost:3000/api/ledger";
 
@@ -12,7 +13,6 @@ function Customers() {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [formLoading, setFormLoading] = useState(false);
-    const [error, setError] = useState("");
 
     const fetchCustomers = async () => {
         try {
@@ -20,7 +20,7 @@ function Customers() {
             const data = await res.json();
             if (Array.isArray(data)) setCustomers(data);
         } catch (error) {
-            console.error("Failed to fetch customers:", error);
+            toast.error("Failed to fetch customers");
         } finally {
             setLoading(false);
         }
@@ -32,7 +32,6 @@ function Customers() {
 
     const handleAddCustomer = async (e) => {
         e.preventDefault();
-        setError("");
         setFormLoading(true);
 
         try {
@@ -49,11 +48,12 @@ function Customers() {
                 setName("");
                 setPhone("");
                 fetchCustomers();
+                toast.success("Customer added successfully!");
             } else {
-                setError(data.message);
+                toast.error(data.message || "Failed to add customer");
             }
         } catch (err) {
-            setError("Something went wrong");
+            toast.error("Something went wrong");
         } finally {
             setFormLoading(false);
         }
@@ -156,7 +156,6 @@ function Customers() {
                             </button>
                         </div>
                         <form onSubmit={handleAddCustomer} className="p-5 flex flex-col gap-4">
-                            {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
                             <div>
                                 <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 block mb-1">Name</label>
                                 <input

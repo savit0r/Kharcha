@@ -4,7 +4,7 @@ import { logActivity } from "../utils/logger.js";
 // @desc    Add a transaction
 // @route   POST /api/transactions
 // @access  Private
-export const addTransaction = async (req, res) => {
+export const addTransaction = async (req, res, next) => {
     try {
         const { title, amount, type, category_id, date, is_recurring, recurring_frequency } = req.body;
 
@@ -72,15 +72,14 @@ export const addTransaction = async (req, res) => {
         logActivity(req.userId, 'ADD_TRANSACTION', `Added ${type} of ₹${amount} for ${title}`);
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        next(error);
     }
 };
 
 // @desc    Get transactions with filters
 // @route   GET /api/transactions?type=&category=&search=&startDate=&endDate=
 // @access  Private
-export const getTransactions = async (req, res) => {
+export const getTransactions = async (req, res, next) => {
     try {
         const { type, category, search, startDate, endDate } = req.query;
 
@@ -133,15 +132,14 @@ export const getTransactions = async (req, res) => {
 
         res.status(200).json(result.rows);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        next(error);
     }
 };
 
 // @desc    Delete a transaction
 // @route   DELETE /api/transactions/:id
 // @access  Private
-export const deleteTransaction = async (req, res) => {
+export const deleteTransaction = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -162,7 +160,6 @@ export const deleteTransaction = async (req, res) => {
         logActivity(req.userId, 'DELETE_TRANSACTION', `Deleted transaction #${id}`);
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        next(error);
     }
 };

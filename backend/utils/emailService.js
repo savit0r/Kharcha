@@ -12,9 +12,9 @@ const transporter = nodemailer.createTransport({
 
 export const sendOtpEmail = async (email, otp) => {
     const mailOptions = {
-        from: `"Kharcha" <${process.env.SMTP_USER}>`,
+        from: `"Spendora" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: "Your Kharcha Login OTP",
+        subject: "Your Spendora Login OTP",
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
                 <h2 style="color: #333;">Login OTP</h2>

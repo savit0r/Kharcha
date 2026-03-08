@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import SummaryCards from "../components/SummaryCards";
+import { toast } from "sonner";
 
 const API = "http://localhost:3000/api";
 
@@ -8,7 +9,6 @@ function Budgets() {
     const [loading, setLoading] = useState(true);
     const [editCategory, setEditCategory] = useState(null);
     const [newLimit, setNewLimit] = useState("");
-    const [message, setMessage] = useState("");
 
     const fetchBudgets = async () => {
         try {
@@ -16,7 +16,7 @@ function Budgets() {
             const data = await res.json();
             if (Array.isArray(data)) setBudgets(data);
         } catch (error) {
-            console.error("Failed to fetch budgets:", error);
+            toast.error("Failed to fetch budgets");
         } finally {
             setLoading(false);
         }
@@ -28,7 +28,6 @@ function Budgets() {
 
     const handleSaveBudget = async (categoryId) => {
         try {
-            setMessage("");
             const res = await fetch(`${API}/budgets`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -39,13 +38,14 @@ function Budgets() {
                 }),
             });
             if (res.ok) {
-                setMessage("Budget updated!");
+                toast.success("Budget updated!");
                 setEditCategory(null);
                 fetchBudgets();
-                setTimeout(() => setMessage(""), 2000);
+            } else {
+                toast.error("Failed to update budget");
             }
         } catch (error) {
-            console.error("Failed to save budget:", error);
+            toast.error("Failed to save budget");
         }
     };
 
@@ -63,8 +63,6 @@ function Budgets() {
     return (
         <div className="max-w-4xl mx-auto pb-10">
             <h2 className="text-3xl font-bold mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">Monthly Budgets</h2>
-
-            {message && <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm text-center font-medium">{message}</div>}
 
             <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-sm p-6 overflow-hidden transition-colors duration-300">
                 <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const API = "http://localhost:3000/api";
 
@@ -10,9 +11,6 @@ function AddExpense() {
     const [categoryId, setCategoryId] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
     const [categories, setCategories] = useState([]);
-    const [message, setMessage] = useState("");
-    const [warning, setWarning] = useState("");
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
     // Recurring state
@@ -66,20 +64,18 @@ function AddExpense() {
                 setCategoryId(data.category.id);
                 setCustomName("");
                 setShowCustom(false);
+                toast.success("Category added successfully");
             } else {
-                setError(data.message);
+                toast.error(data.message || "Failed to add category");
             }
         } catch (err) {
-            setError("Failed to add category");
+            toast.error("Failed to connect to server");
         }
     };
 
     // Submit transaction
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage("");
-        setWarning("");
-        setError("");
         setLoading(true);
 
         try {
@@ -126,9 +122,9 @@ function AddExpense() {
 
             if (res.ok) {
                 if (data.warning) {
-                    setWarning(`Expense added, but you are ${data.warning}!`);
+                    toast.warning(`Expense added, but you are ${data.warning}!`);
                 } else {
-                    setMessage(`${type === "income" ? "Income" : "Expense"} added!`);
+                    toast.success(`${type === "income" ? "Income" : "Expense"} added!`);
                 }
                 setTitle("");
                 setAmount("");
@@ -138,15 +134,11 @@ function AddExpense() {
                 setDate(new Date().toISOString().split("T")[0]);
                 setReceiptFile(null);
                 setReceiptPreview(null);
-                setTimeout(() => {
-                    setMessage("");
-                    setWarning("");
-                }, 3000);
             } else {
-                setError(data.message);
+                toast.error(data.message || "Failed to add transaction");
             }
         } catch (err) {
-            setError("Something went wrong");
+            toast.error("Something went wrong");
         } finally {
             setLoading(false);
         }
@@ -156,7 +148,7 @@ function AddExpense() {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) {
-                setError("File is too large (max 5MB)");
+                toast.error("File is too large (max 5MB)");
                 return;
             }
             setReceiptFile(file);
@@ -169,10 +161,6 @@ function AddExpense() {
             <h2 className="text-3xl font-bold mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight text-center">Add Transaction</h2>
 
             <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 p-8 rounded-2xl shadow-sm w-full flex flex-col gap-6 transition-colors duration-300">
-                {message && <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm text-center font-medium shadow-sm">{message}</div>}
-                {warning && <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-sm text-center font-medium shadow-sm flex items-center justify-center gap-2"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>{warning}</div>}
-                {error && <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-sm text-center font-medium shadow-sm">{error}</div>}
-
                 {/* Type Toggle */}
                 <div className="flex bg-neutral-100 dark:bg-neutral-700/50 p-1 rounded-xl">
                     <button
