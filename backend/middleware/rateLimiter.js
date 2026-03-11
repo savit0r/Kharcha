@@ -17,3 +17,12 @@ export const verifyOtpLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
+
+// Global API rate limiter — max 100 requests per 15 minutes per IP
+export const globalApiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { message: "Too many requests from this IP, please try again after 15 minutes." },
+    standardHeaders: true,
+    legacyHeaders: false,
+});

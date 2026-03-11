@@ -1,17 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 function LedgerEntryModal({ isOpen, onClose, onSubmit, entryType, customerName, formLoading }) {
     const [amount, setAmount] = useState("");
     const [note, setNote] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
-    useEffect(() => {
-        if (isOpen) {
-            setAmount("");
-            setNote("");
-            setDate(new Date().toISOString().split("T")[0]);
-        }
-    }, [isOpen]);
+    // Removed reset effect to prevent synchronous setState warning
 
     if (!isOpen) return null;
 

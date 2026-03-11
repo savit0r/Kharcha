@@ -7,19 +7,14 @@ function Navbar() {
     const { theme, toggleTheme } = useTheme();
 
     const getPageTitle = () => {
-        if (location.pathname.startsWith("/customers")) return "Ledger";
-        switch (location.pathname) {
-            case "/dashboard": return "Dashboard";
-            case "/add-expense": return "Add Expense";
-            case "/analytics": return "Analytics";
-            case "/budgets": return "Budgets";
-            default: return "Spendora";
-        }
+        if (location.pathname.startsWith("/books/")) return "Book Details";
+        if (location.pathname === "/books") return "My Books";
+        return "Spendora";
     };
 
     const handleLogout = async () => {
         try {
-            await fetch("http://localhost:3000/api/auth/logout", {
+            await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/logout`, {
                 method: "POST",
                 credentials: "include",
             });
@@ -30,25 +25,28 @@ function Navbar() {
     };
 
     return (
-        <div className="h-16 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xl border-b border-neutral-200 dark:border-neutral-700 flex flex-shrink-0 items-center justify-between px-6 z-10 transition-colors duration-300">
-            <h1 className="text-xl font-medium tracking-wide text-neutral-900 dark:text-neutral-100">{getPageTitle()}</h1>
+        <div className="h-16 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex flex-shrink-0 items-center justify-between px-6 z-10 transition-colors">
+            <h1 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">{getPageTitle()}</h1>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
                 <button
                     onClick={toggleTheme}
-                    className="p-2 rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 transition-colors duration-300"
+                    className="p-2 rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
                     aria-label="Toggle theme"
+                    title={theme === "dark" ? "Switch to Light" : "Switch to Dark"}
                 >
                     {theme === "dark" ? (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     ) : (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     )}
                 </button>
                 <button
                     onClick={handleLogout}
-                    className="bg-neutral-100 dark:bg-neutral-700/50 text-neutral-700 dark:text-neutral-300 px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-600 hover:bg-neutral-200 dark:hover:bg-neutral-600/50 transition-colors focus:ring-2 focus:ring-neutral-500/50 focus:outline-none"
+                    className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400 px-3 py-1.5 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                    title="Logout"
                 >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                     Logout
                 </button>
             </div>

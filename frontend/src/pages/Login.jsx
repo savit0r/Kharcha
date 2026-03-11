@@ -17,7 +17,7 @@ function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:3000/api/auth/login", {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -37,11 +37,11 @@ function Login() {
 
             if (res.ok) {
                 toast.success(data.message || "Login successful");
-                navigate("/dashboard");
+                navigate("/books");
             } else {
                 toast.error(data.message || "Login failed");
             }
-        } catch (err) {
+        } catch {
             toast.error("Something went wrong. Is the server running?");
         } finally {
             setLoading(false);
@@ -54,10 +54,10 @@ function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/send-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ email, type: "login" }),
             });
 
             let data;
@@ -76,7 +76,7 @@ function Login() {
             } else {
                 toast.error(data.message || "Failed to send OTP");
             }
-        } catch (err) {
+        } catch {
             toast.error("Something went wrong. Is the server running?");
         } finally {
             setLoading(false);
@@ -89,11 +89,11 @@ function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:3000/api/auth/verify-otp", {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/verify-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ email, otp }),
+                body: JSON.stringify({ email, otp, type: "login" }),
             });
 
             let data;
@@ -108,23 +108,15 @@ function Login() {
 
             if (res.ok) {
                 toast.success(data.message || "OTP Verified Successfully");
-                navigate("/dashboard");
+                navigate("/books");
             } else {
                 toast.error(data.message || "Verification failed");
             }
-        } catch (err) {
+        } catch {
             toast.error("Something went wrong. Is the server running?");
         } finally {
             setLoading(false);
         }
-    };
-
-    // Switch modes
-    const toggleMode = () => {
-        setMode(mode === "password" ? "otp" : "password");
-        setOtpSent(false);
-        setOtp("");
-        setPassword("");
     };
 
     return (

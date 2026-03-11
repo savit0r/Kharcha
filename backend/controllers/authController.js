@@ -148,3 +148,23 @@ export const logoutUser = (req, res, next) => {
         next(error);
     }
 };
+
+// @desc    Get currently logged in user
+// @route   GET /api/auth/me
+// @access  Private
+export const getUserProfile = async (req, res, next) => {
+    try {
+        const user = await pool.query(
+            "SELECT id, name, email FROM users WHERE id = $1",
+            [req.userId]
+        );
+
+        if (user.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(user.rows[0]);
+    } catch (error) {
+        next(error);
+    }
+};

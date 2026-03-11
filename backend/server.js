@@ -6,17 +6,20 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import pool from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-import categoryRoutes from "./routes/categoryRoutes.js";
-import expenseRoutes from "./routes/expenseRoutes.js";
-import dashboardRoutes from "./routes/dashboardRoutes.js";
+import bookRoutes from "./routes/bookRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
+import expenseRoutes from "./routes/expenseRoutes.js";
+import exportRoutes from "./routes/exportRoutes.js";
 import ledgerRoutes from "./routes/ledgerRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
-import exportRoutes from "./routes/exportRoutes.js";
-import activityRoutes from "./routes/activityRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 import "./jobs/recurringJob.js";
+
+// Background Workers removed (running synchronously)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,14 +55,15 @@ const authLimiter = rateLimit({
 
 // Routes
 app.use("/api/auth", authLimiter, authRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/transactions", expenseRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/books", bookRoutes);
+app.use("/api/activity", activityRoutes);
 app.use("/api/budgets", budgetRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/expenses", expenseRoutes);
+app.use("/api/export", exportRoutes);
 app.use("/api/ledger", ledgerRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/export", exportRoutes);
-app.use("/api/activity", activityRoutes);
 
 // Serve uploads directory statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
