@@ -88,6 +88,27 @@ const createTables = async () => {
                 description TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            -- NEW TABLES FOR BOOKS MVP --
+
+            CREATE TABLE IF NOT EXISTS books (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                created_by INT REFERENCES users(id) ON DELETE CASCADE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS book_entries (
+                id SERIAL PRIMARY KEY,
+                book_id INT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+                amount DECIMAL(12, 2) NOT NULL,
+                type VARCHAR(10) NOT NULL CHECK (type IN ('cash_in', 'cash_out')),
+                payment_mode VARCHAR(20) DEFAULT 'Cash',
+                remark TEXT,
+                created_by INT REFERENCES users(id) ON DELETE SET NULL,
+                date DATE NOT NULL DEFAULT CURRENT_DATE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         `);
 
         // Seed default categories (only if none exist)
@@ -124,9 +145,10 @@ const createTables = async () => {
             console.log("Default categories seeded");
         }
 
-        console.log("Tables created successfully");
+        console.log("MVP Tables created successfully");
     } catch (error) {
-        console.error("Error creating tables:", error.message);
+        console.error("Error creating tables:");
+        console.error(error);
     } finally {
         await pool.end();
         process.exit();

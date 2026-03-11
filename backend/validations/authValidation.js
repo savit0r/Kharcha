@@ -15,10 +15,10 @@ export const loginSchema = z.object({
 export const verifyOtpSchema = z.object({
     email: z.string().email("Invalid email format"),
     otp: z.string().length(6, "OTP must be exactly 6 digits"),
-    type: z.enum(["registration", "password_reset"]),
+    type: z.enum(["registration", "password_reset", "login"]).optional(),
 });
 
 export const resendOtpSchema = z.object({
     email: z.string().email("Invalid email format"),
-    type: z.enum(["registration", "password_reset"]),
+    type: z.enum(["registration", "password_reset", "login"]).optional(),
 });

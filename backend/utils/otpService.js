@@ -19,6 +19,7 @@ export const generateAndSendOtp = async (email) => {
         [email, otpHash, 0, expiresAt]
     );
 
+    // Send email directly
     await sendOtpEmail(email, otp);
 };
 

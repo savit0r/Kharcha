@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "http://localhost:3000/api/activity";
+const API = `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/activity`;
 
 function ActivityFeed() {
     const [activities, setActivities] = useState([]);
