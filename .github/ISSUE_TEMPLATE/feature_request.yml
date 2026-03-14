@@ -1,0 +1,51 @@
+name: 💡 Feature Request
+description: Suggest a new feature or improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make Spendora better? We'd love to hear it!
+
+  - type: input
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: Brief title for the feature
+      placeholder: e.g. "Dark/light theme toggle on mobile"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this solve? Why is it needed?
+      placeholder: As a user, I want to... so that I can...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe how you'd like this feature to work
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions you've considered?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Web Frontend
+        - Mobile App
+        - Backend / API
+        - Both Web and Mobile
+        - Documentation
