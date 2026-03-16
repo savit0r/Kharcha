@@ -1,0 +1,65 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please be as detailed as possible.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Bug Summary
+      description: A short, clear description of the bug
+      placeholder: e.g. "PDF export crashes on Android when book name has spaces"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How do we reproduce this?
+      placeholder: |
+        1. Open a book with entries
+        2. Tap the report icon
+        3. Select PDF
+        4. App crashes
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      placeholder: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      placeholder: What actually happened? Include error messages or screenshots if possible.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options:
+        - Web (Frontend)
+        - Mobile Android
+        - Mobile iOS
+        - Backend / API
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / Commit
+      placeholder: e.g. latest master, commit abc1234

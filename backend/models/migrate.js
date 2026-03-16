@@ -62,25 +62,6 @@ const createTables = async () => {
                 UNIQUE(user_id, category_id)
             );
 
-            CREATE TABLE IF NOT EXISTS customers (
-                id SERIAL PRIMARY KEY,
-                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                name VARCHAR(100) NOT NULL,
-                phone VARCHAR(20),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-
-            CREATE TABLE IF NOT EXISTS ledger_entries (
-                id SERIAL PRIMARY KEY,
-                customer_id INT NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-                amount DECIMAL(12, 2) NOT NULL,
-                type VARCHAR(10) NOT NULL CHECK (type IN ('credit', 'debit')),
-                note TEXT,
-                date DATE NOT NULL DEFAULT CURRENT_DATE,
-                receipt_url VARCHAR(1024),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-
             CREATE TABLE IF NOT EXISTS activity_logs (
                 id SERIAL PRIMARY KEY,
                 user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -94,6 +75,9 @@ const createTables = async () => {
             CREATE TABLE IF NOT EXISTS books (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100) NOT NULL,
+                description VARCHAR(255),
+                color VARCHAR(20) DEFAULT '#4f46e5',
+                is_archived BOOLEAN DEFAULT false,
                 created_by INT REFERENCES users(id) ON DELETE CASCADE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
