@@ -1,113 +1,116 @@
-# Spendora Free Deployment Plan
+# 🚀 Spendora: Zero to Hero Deployment Guide
 
-This plan uses 100% free-tier services that are reliable and "always-on" (with minimal cold-starts).
-
-## 🌍 Services Overview
-
-| Component | Provider | Why? |
-|---|---|---|
-| **Frontend** | [Vercel](https://vercel.com) | Best-in-class performance for Vite/React and free forever. |
-| **Backend** | [Render](https://render.com) | Reliable free tier for Node.js. *Note: Spins down after inactivity.* |
-| **Database** | [Neon](https://neon.tech) | Excellent serverless PostgreSQL with a generous free tier. |
-| **Redis** | [Upstash](https://upstash.com) | Serverless Redis with a free tier perfect for BullMQ. |
-| **Media** | [Cloudinary](https://cloudinary.com) | Free storage for receipt images and profile pictures. |
+Welcome! This guide is designed for beginners. We will deploy Spendora using 100% free services. Follow these steps exactly, and you'll have your app live in no time.
 
 ---
 
-## 🛠️ Step-by-Step Setup
+## 📋 Preparation Checklist
+1. A GitHub account with your code pushed to `feature/spendora-mvp`.
+2. A credit/debit card (for verification only; services are free).
+3. 30 minutes of focused time.
 
-### 1. Database (Neon)
+---
+
+## 🏁 Phase 1: The Database (Neon)
+Think of this as the "brain" where all your expenses are stored.
+
 1. Sign up at [neon.tech](https://neon.tech).
-2. Create a new project called `spendora`.
-3. Copy the **Connection String** (it will look like `postgres://user:pass@host/db`).
-   - *Save this for your Backend Environment Variables.*
+2. Click **Create Project**. Name it `spendora-db`.
+3. You will see a **Connection String**. It looks like this:
+   `postgres://alex:abcd123@ep-cool-water-1234.us-east-2.aws.neon.tech/neondb?sslmode=require`
+4. **👉 ACTION**: Copy this and save it as `DATABASE_URL` in a notepad.
 
-### 2. Redis (Upstash)
+---
+
+## ⚡ Phase 2: The Fast Storage (Upstash Redis)
+This handles backend background tasks like sending OTP emails.
+
 1. Sign up at [upstash.com](https://upstash.com).
-2. Create a "Redis" database in a region close to your database.
-3. Copy the **REDIS_URL** (e.g., `redis://default:pass@host:port`).
-   - *Save this for your Backend Environment Variables.*
+2. Click **Create Database**. Name it `spendora-redis`.
+3. Scroll down to the **Node.js** tab.
+4. Look for the `REDIS_URL`. It looks like:
+   `redis://default:you-secret-code@cool-dog-123.upstash.io:6379`
+5. **👉 ACTION**: Copy this and save it as `REDIS_URL` in your notepad.
 
-### 3. Backend (Render)
+---
+
+## ⚙️ Phase 3: The Backend (Render)
+This is the engine that runs your Node.js code.
+
 1. Sign up at [render.com](https://render.com).
 2. Click **New +** > **Web Service**.
-3. Connect your GitHub repository and select the `feature/spendora-mvp` branch.
-4. Settings:
+3. Connect your GitHub account and select your `Kharcha` repository.
+4. **Crucial Settings**:
+   - **Name**: `spendora-api`
    - **Root Directory**: `spendora/backend`
    - **Build Command**: `npm install`
    - **Start Command**: `node server.js`
-5. **Environment Variables**: Add all keys from your `.env` file (DATABASE_URL, REDIS_URL, JWT_SECRET, etc.).
-6. Once deployed, copy your Render URL (e.g., `https://spendora-api.onrender.com`).
+5. Scroll down to **Environment Variables** and add these:
+   - `DATABASE_URL` = (Your Neon URL)
+   - `REDIS_URL` = (Your Upstash URL)
+   - `JWT_SECRET` = (Type any random 32 characters, e.g., `my-super-secret-key-123-456-789`)
+   - `JWT_REFRESH_SECRET` = (Type another random string)
+   - `PORT` = `3000`
+   - `CLIENT_URL` = (Keep empty for now, we will update this later).
+6. Click **Create Web Service**.
+7. **👉 ACTION**: Once deployed, copy the URL at the top (e.g., `https://spendora-api.onrender.com`).
 
-### 4. Frontend (Vercel)
+---
+
+## 💻 Phase 4: The Website (Vercel)
+This is what users see in their browsers.
+
 1. Sign up at [vercel.com](https://vercel.com).
-2. Click **New Project** and import your GitHub repo.
-3. Settings:
+2. Click **Add New** > **Project**.
+3. Import your `Kharcha` repository.
+4. **Edit Settings**:
    - **Root Directory**: `spendora/frontend`
-   - **Framework Preset**: Vite
-4. **Environment Variables**:
-   - `VITE_API_URL`: Set this to your **Render URL** + `/api` (e.g., `https://spendora-api.onrender.com/api`).
-5. Click **Deploy**.
+   - **Framework Preset**: Vite (should be auto-detected).
+5. **Environment Variables**:
+   - Add `VITE_API_URL`
+   - Value: `https://your-render-url.onrender.com/api` (Replace with YOUR URL from Phase 3).
+6. Click **Deploy**.
+7. **👉 ACTION**: Copy your new website URL (e.g., `https://spendora-app.vercel.app`).
 
 ---
 
-## 🔗 URL & Environment Management
+## 🔄 Phase 5: Connect Everything (The Final Link)
+Now we must tell the Backend that it's okay to talk to your Website.
 
-When moving from local development to production, your app needs to know where to find the backend.
-
-### Backend (`.env` on Render)
-- `CLIENT_URL`: Set this to your frontend URL (e.g., `https://spendora.vercel.app`). This is critical for **CORS** and **Auth Cookies** to work.
-
-### Frontend (`.env` on Vercel)
-- `VITE_API_URL`: Set this to your backend URL (e.g., `https://spendora-api.onrender.com/api`).
-
-### Mobile (`src/api.js`)
-In production, your mobile app needs to point to the live server instead of your computer's IP. Update `mobile/src/api.js`:
-```javascript
-// Production URL
-export const API_BASE_URL = 'https://spendora-api.onrender.com/api';
-```
+1. Go back to your **Render** dashboard.
+2. Select your `spendora-api`.
+3. Go to **Environment**.
+4. Edit `CLIENT_URL` and paste your **Vercel URL** (e.g., `https://spendora-app.vercel.app`).
+5. Save changes. Render will restart automatically.
 
 ---
 
-## 📱 Mobile Deployment (Standalone Apps)
+## 📱 Phase 6: Mobile App (EAS Build)
+To give the app to your friends as an APK:
 
-To distribute your app to others without using the Expo Go QR code, you need to create a **Standalone Build** (APK for Android or IPA for iOS) using **EAS (Expo Application Services)**.
-
-### 1. Install EAS CLI
-```bash
-npm install -g eas-cli
-```
-
-### 2. Login & Configure
-```bash
-eas login
-eas build:configure
-```
-
-### 3. Create a Build
-- **For Android (APK)**:
-  ```bash
-  eas build --platform android --profile preview
-  ```
-  *(The `preview` profile generates an installable `.apk` file instead of an `.aab` for the Play Store).*
-- **For iOS**:
-  ```bash
-  eas build --platform ios
-  ```
-
-### 4. Over-the-Air (OTA) Updates
-One of the best features of Expo is **EAS Update**. If you fix a bug or change a color, you can push the update without making users download a new app:
-```bash
-eas update --message "Fixed mobile layout responsiveness"
-```
+1. Open your terminal on your computer.
+2. Go to the mobile folder: `cd spendora/mobile`
+3. Update `src/api.js`: Change the `API_BASE_URL` to your Render URL:
+   ```javascript
+   export const API_BASE_URL = 'https://spendora-api.onrender.com/api';
+   ```
+4. Run these commands:
+   ```bash
+   npm install -g eas-cli
+   eas login
+   eas build -p android --profile preview
+   ```
+5. Wait 10 minutes. EAS will give you a link to download the `.apk` file!
 
 ---
 
-## ⚠️ Important Notes
+## 🆘 Troubleshooting for Beginners
+- **Q: My website says "Network Error"!**
+  - *Check*: Did you add `/api` at the end of `VITE_API_URL` in Vercel?
+  - *Check*: Did you set `CLIENT_URL` in Render to your Vercel URL?
+- **Q: Render looks stuck at "Deploying".**
+  - *Note*: Render is slow on the free tier. It can take 5-7 minutes to start the first time.
+- **Q: I can't log in!**
+  - *Check*: Is your `DATABASE_URL` correct? Check the logs in Render to see if there are database errors.
 
-> [!IMPORTANT]
-> **Cold Starts**: Render's free tier "sleeps" after 15 minutes of inactivity. The first request after a break might take 30-50 seconds to respond as it wakes up.
-
-> [!TIP]
-> **Persistent Login**: Since we use HTTP-only cookies, ensure that your `api.js` (Mobile) and `apiFetch` (Web) both have `credentials: 'include'` set to maintain the session across restarts.
+**You are now a Deployment Pro! 🎉**
