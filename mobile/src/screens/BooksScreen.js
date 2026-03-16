@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput, Modal,
-  Alert, ActivityIndicator, SafeAreaView, RefreshControl, StyleSheet, StatusBar,
+  Alert, ActivityIndicator, RefreshControl, StyleSheet, StatusBar,
   KeyboardAvoidingView, Platform
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { apiFetch } from '../api';
 
@@ -17,7 +18,15 @@ export default function BooksScreen({ navigation }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editBook, setEditBook] = useState(null);
   const [modalName, setModalName] = useState('');
+  const [modalDesc, setModalDesc] = useState('');
+  const [modalColor, setModalColor] = useState('#4f46e5');
   const [formLoading, setFormLoading] = useState(false);
+
+  // Tabs
+  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'archived'
+
+  // Colors constant
+  const COLORS = ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6", "#64748b"];
 
   // Long-press menu
   const [menuBook, setMenuBook] = useState(null);
@@ -47,12 +56,18 @@ export default function BooksScreen({ navigation }) {
     try {
       const res = await apiFetch('/books', {
         method: 'POST',
-        body: JSON.stringify({ name: modalName.trim() }),
+        body: JSON.stringify({ 
+          name: modalName.trim(),
+          description: modalDesc.trim(),
+          color: modalColor
+        }),
       });
       const data = await res.json();
       if (res.ok) {
         setShowCreateModal(false);
         setModalName('');
+        setModalDesc('');
+        setModalColor('#4f46e5');
         fetchBooks(true);
       } else {
         Alert.alert('Error', data.error || 'Failed to create book');
@@ -70,11 +85,17 @@ export default function BooksScreen({ navigation }) {
     try {
       const res = await apiFetch(`/books/${editBook.id}`, {
         method: 'PUT',
-        body: JSON.stringify({ name: modalName.trim() }),
+        body: JSON.stringify({ 
+          name: modalName.trim(),
+          description: modalDesc.trim(),
+          color: modalColor
+        }),
       });
       if (res.ok) {
         setEditBook(null);
         setModalName('');
+        setModalDesc('');
+        setModalColor('#4f46e5');
         fetchBooks(true);
       } else {
         Alert.alert('Error', 'Failed to rename book');
@@ -106,25 +127,49 @@ export default function BooksScreen({ navigation }) {
     );
   };
 
-  const filtered = books.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
-  const totalIn = books.reduce((acc, b) => acc + Number(b.total_in), 0);
-  const totalOut = books.reduce((acc, b) => acc + Number(b.total_out), 0);
-  const totalNet = books.reduce((acc, b) => acc + Number(b.net_balance), 0);
+  const handleToggleArchive = async (book) => {
+    try {
+      const res = await apiFetch(`/books/${book.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_archived: !book.is_archived }),
+      });
+      if (res.ok) fetchBooks(true);
+      else Alert.alert('Error', 'Failed to update book');
+    } catch {
+      Alert.alert('Error', 'Something went wrong');
+    }
+  };
+
+  const activeBooks = books.filter(b => !b.is_archived && b.name.toLowerCase().includes(search.toLowerCase()));
+  const archivedBooks = books.filter(b => b.is_archived && b.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = activeTab === 'active' ? activeBooks : archivedBooks;
+
+  const totalIn = filtered.reduce((acc, b) => acc + Number(b.total_in), 0);
+  const totalOut = filtered.reduce((acc, b) => acc + Number(b.total_out), 0);
+  const totalNet = filtered.reduce((acc, b) => acc + Number(b.net_balance), 0);
 
   const fmt = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
 
   const renderBook = ({ item: b }) => (
     <TouchableOpacity
-      style={s.bookCard}
+      style={[s.bookCard, b.is_archived && { opacity: 0.6 }]}
       onPress={() => navigation.navigate('BookDetail', { bookId: b.id, bookName: b.name })}
       onLongPress={() => setMenuBook(b)}
       activeOpacity={0.75}
     >
-      <View style={s.bookIcon}>
+      <View style={[s.bookIcon, { backgroundColor: b.color || '#312e81' }]}>
         <Text style={{ fontSize: 20 }}>📒</Text>
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={s.bookName} numberOfLines={1}>{b.name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Text style={s.bookName} numberOfLines={1}>{b.name}</Text>
+          {b.is_archived && (
+            <View style={{ backgroundColor: '#334155', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 4 }}>
+              <Text style={{ color: '#94a3b8', fontSize: 8, fontWeight: 'bold' }}>ARCHIVED</Text>
+            </View>
+          )}
+        </View>
+        <Text style={s.bookDesc} numberOfLines={1}>{b.description || 'No description'}</Text>
         <View style={s.bookMeta}>
           <Text style={s.inText}>+{fmt(b.total_in)}</Text>
           <Text style={s.metaDot}>·</Text>
@@ -148,9 +193,9 @@ export default function BooksScreen({ navigation }) {
       <View style={s.header}>
         <View>
           <Text style={s.headerTitle}>My Books</Text>
-          <Text style={s.headerSub}>{books.length} book{books.length !== 1 ? 's' : ''}</Text>
+          <Text style={s.headerSub}>{filtered.length} book{filtered.length !== 1 ? 's' : ''}</Text>
         </View>
-        <TouchableOpacity style={s.addBtn} onPress={() => { setModalName(''); setShowCreateModal(true); }}>
+        <TouchableOpacity style={s.addBtn} onPress={() => { setModalName(''); setModalDesc(''); setModalColor('#4f46e5'); setShowCreateModal(true); }}>
           <Text style={s.addBtnText}>+ New Book</Text>
         </TouchableOpacity>
       </View>
@@ -199,6 +244,24 @@ export default function BooksScreen({ navigation }) {
                 </View>
               )}
 
+              {/* Tabs */}
+              {books.length > 0 && (
+                <View style={s.tabContainer}>
+                  <TouchableOpacity 
+                    style={[s.tab, activeTab === 'active' && s.tabActive]} 
+                    onPress={() => setActiveTab('active')}
+                  >
+                    <Text style={[s.tabText, activeTab === 'active' && s.tabTextActive]}>Active ({activeBooks.length})</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[s.tab, activeTab === 'archived' && s.tabActive]} 
+                    onPress={() => setActiveTab('archived')}
+                  >
+                    <Text style={[s.tabText, activeTab === 'archived' && s.tabTextActive]}>Archived ({archivedBooks.length})</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
               {/* Empty state */}
               {books.length === 0 && (
                 <View style={s.empty}>
@@ -228,9 +291,21 @@ export default function BooksScreen({ navigation }) {
             <Text style={s.actionSheetTitle} numberOfLines={1}>{menuBook?.name}</Text>
             <TouchableOpacity
               style={s.actionItem}
-              onPress={() => { setEditBook(menuBook); setModalName(menuBook.name); setMenuBook(null); }}
+              onPress={() => { 
+                setEditBook(menuBook); 
+                setModalName(menuBook.name); 
+                setModalDesc(menuBook.description || '');
+                setModalColor(menuBook.color || '#4f46e5');
+                setMenuBook(null); 
+              }}
             >
-              <Text style={s.actionItemText}>✏️  Rename</Text>
+              <Text style={s.actionItemText}>✏️  Edit Details</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.actionItem}
+              onPress={() => { handleToggleArchive(menuBook); setMenuBook(null); }}
+            >
+              <Text style={s.actionItemText}>📦  {menuBook?.is_archived ? 'Unarchive' : 'Archive'}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.actionItem, s.actionItemDanger]}
@@ -250,21 +325,42 @@ export default function BooksScreen({ navigation }) {
         visible={showCreateModal || !!editBook}
         transparent
         animationType="slide"
-        onRequestClose={() => { setShowCreateModal(false); setEditBook(null); setModalName(''); }}
+        onRequestClose={() => { setShowCreateModal(false); setEditBook(null); setModalName(''); setModalDesc(''); setModalColor('#4f46e5'); }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <View style={s.overlay}>
             <View style={s.modalCard}>
               <Text style={s.modalTitle}>{editBook ? 'Rename Book' : 'Create New Book'}</Text>
-              <TextInput
-                style={s.modalInput}
-                placeholder="e.g. Office Expenses, Trip 2025"
-                placeholderTextColor="#475569"
-                value={modalName}
-                onChangeText={setModalName}
-                autoFocus
-                maxLength={60}
-              />
+                <TextInput
+                  style={s.modalInput}
+                  placeholder="e.g. Office Expenses, Trip 2025"
+                  placeholderTextColor="#475569"
+                  value={modalName}
+                  onChangeText={setModalName}
+                  autoFocus
+                  maxLength={60}
+                />
+                <Text style={s.label}>Description (Optional)</Text>
+                <TextInput
+                  style={[s.modalInput, { fontSize: 13, paddingVertical: 10 }]}
+                  placeholder="What is this book for?"
+                  placeholderTextColor="#475569"
+                  value={modalDesc}
+                  onChangeText={setModalDesc}
+                  maxLength={100}
+                />
+                <Text style={s.label}>Theme Color</Text>
+                <View style={s.colorRow}>
+                  {COLORS.map(c => (
+                    <TouchableOpacity
+                      key={c}
+                      style={[s.colorCircle, { backgroundColor: c }, modalColor === c && s.colorCircleActive]}
+                      onPress={() => setModalColor(c)}
+                    >
+                      {modalColor === c && <Text style={{ color: '#fff', fontSize: 10 }}>✓</Text>}
+                    </TouchableOpacity>
+                  ))}
+                </View>
               <TouchableOpacity
                 style={[s.modalBtn, (formLoading || !modalName.trim()) && s.btnDisabled]}
                 onPress={editBook ? handleRenameBook : handleCreateBook}
@@ -298,6 +394,11 @@ const s = StyleSheet.create({
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
   logoutBtn: { backgroundColor: '#1e293b', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#334155' },
   logoutBtnText: { color: '#64748b', fontWeight: '700', fontSize: 16 },
+  tabContainer: { flexDirection: 'row', backgroundColor: '#1e293b', borderRadius: 10, padding: 4, marginBottom: 12 },
+  tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
+  tabActive: { backgroundColor: '#334155' },
+  tabText: { color: '#64748b', fontSize: 13, fontWeight: '600' },
+  tabTextActive: { color: '#f8fafc' },
   summaryRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
   summaryCard: { flex: 1, backgroundColor: '#1e293b', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#334155' },
   summaryLabel: { color: '#64748b', fontSize: 11, fontWeight: '600', marginBottom: 4 },
@@ -310,12 +411,17 @@ const s = StyleSheet.create({
   bookCard: { backgroundColor: '#1e293b', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: '#334155' },
   bookIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#312e81', alignItems: 'center', justifyContent: 'center' },
   bookName: { color: '#f8fafc', fontWeight: '600', fontSize: 15 },
-  bookMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
+  bookDesc: { color: '#64748b', fontSize: 12, marginTop: 1 },
+  bookMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   inText: { color: '#22c55e', fontSize: 12 },
   outText: { color: '#ef4444', fontSize: 12 },
   metaDot: { color: '#475569', fontSize: 12 },
   netBal: { fontWeight: 'bold', fontSize: 15 },
   netLabel: { color: '#475569', fontSize: 11 },
+  label: { color: '#94a3b8', fontSize: 11, fontWeight: '700', marginBottom: 8, textTransform: 'uppercase' },
+  colorRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
+  colorCircle: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  colorCircleActive: { borderWidth: 2, borderColor: '#fff' },
   empty: { alignItems: 'center', paddingTop: 60, gap: 8 },
   emptyIcon: { fontSize: 48, marginBottom: 8 },
   emptyTitle: { color: '#e2e8f0', fontWeight: '700', fontSize: 18 },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -12,14 +12,12 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import BooksScreen from './src/screens/BooksScreen';
 import BookDetailScreen from './src/screens/BookDetailScreen';
-import LedgerScreen from './src/screens/LedgerScreen';
-import CustomerDetailScreen from './src/screens/CustomerDetailScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import { apiFetch } from './src/api';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const BooksStack = createNativeStackNavigator();
-const LedgerStack = createNativeStackNavigator();
 
 // ── Custom Tab Bar Icon ──────────────────────────────────────────────────────
 function TabIcon({ emoji, label, focused }) {
@@ -49,14 +47,7 @@ function BooksStackNavigator() {
   );
 }
 
-function LedgerStackNavigator() {
-  return (
-    <LedgerStack.Navigator screenOptions={{ headerShown: false }}>
-      <LedgerStack.Screen name="LedgerList" component={LedgerScreen} />
-      <LedgerStack.Screen name="CustomerDetail" component={CustomerDetailScreen} />
-    </LedgerStack.Navigator>
-  );
-}
+
 
 // ── Bottom Tabs ───────────────────────────────────────────────────────────────
 function MainTabs() {
@@ -85,11 +76,7 @@ function MainTabs() {
         component={BooksStackNavigator}
         options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📒" label="Books" focused={focused} /> }}
       />
-      <Tab.Screen
-        name="LedgerTab"
-        component={LedgerStackNavigator}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🤝" label="Ledger" focused={focused} /> }}
-      />
+
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
@@ -101,13 +88,42 @@ function MainTabs() {
 
 // ── Root Navigator ─────────────────────────────────────────────────────────────
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialRoute, setInitialRoute] = useState("Login");
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await apiFetch('/auth/me');
+        if (res.ok) {
+          setInitialRoute("App");
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0a0f1e', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ color: '#6366f1', fontSize: 24, fontWeight: 'bold' }}>Spendora</Text>
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator 
+        screenOptions={{ headerShown: false }} 
+        initialRouteName={initialRoute}
+      >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="App" component={MainTabs} />
-        {/* Alias for replace('Auth') from deep screens */}
         <Stack.Screen name="Auth" component={LoginScreen} />
       </Stack.Navigator>
     </NavigationContainer>

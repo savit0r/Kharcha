@@ -1,18 +1,20 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, SafeAreaView,
-  RefreshControl, StyleSheet, StatusBar, ActivityIndicator, Dimensions
+  View, Text, ScrollView, TouchableOpacity,
+  RefreshControl, StyleSheet, StatusBar, ActivityIndicator, useWindowDimensions
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { BarChart } from 'react-native-chart-kit';
 import { apiFetch } from '../api';
 
-const SCREEN_W = Dimensions.get('window').width;
+// removed static SCREEN_W
 const fmt = n => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
 const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 export default function HomeScreen({ navigation }) {
+  const { width: windowWidth } = useWindowDimensions();
   const [dashboard, setDashboard] = useState(null);
   const [books, setBooks] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -121,7 +123,7 @@ export default function HomeScreen({ navigation }) {
                     { data: chartData.inData.length ? chartData.inData : [0], color: () => 'rgba(74,222,128,0.8)' },
                   ],
                 }}
-                width={SCREEN_W - 52}
+                width={windowWidth - 56}
                 height={180}
                 yAxisLabel="₹"
                 yAxisSuffix=""

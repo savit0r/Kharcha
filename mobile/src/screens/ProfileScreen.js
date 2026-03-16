@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, TouchableOpacity, SafeAreaView, Alert,
+  View, Text, TouchableOpacity, Alert,
   ActivityIndicator, ScrollView, StyleSheet, StatusBar, RefreshControl
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { apiFetch } from '../api';
 

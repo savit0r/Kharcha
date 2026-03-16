@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput, Modal,
-  Alert, ActivityIndicator, SafeAreaView, RefreshControl,
-  ScrollView, StyleSheet, StatusBar, Platform
+  Alert, ActivityIndicator, RefreshControl,
+  ScrollView, StyleSheet, StatusBar, Platform, KeyboardAvoidingView
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -321,10 +322,10 @@ export default function BookDetailScreen({ route, navigation }) {
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: -apple-system, Helvetica, Arial, sans-serif; background: #fff; color: #0f172a; }
-            .header { background: #4f46e5; color: white; padding: 24px 28px; }
+            .header { background: ${book.color || '#4f46e5'}; color: white; padding: 24px 28px; }
             .header h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
             .header p { font-size: 13px; opacity: 0.85; }
-            .summary { display: flex; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+            .summary { display: flex; background: ${book.color ? `${book.color}1A` : '#f8fafc'}; border-bottom: 2px solid #e2e8f0; }
             .summary-item { flex: 1; padding: 14px 20px; text-align: center; border-right: 1px solid #e2e8f0; }
             .summary-item:last-child { border-right: none; }
             .summary-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
@@ -333,7 +334,7 @@ export default function BookDetailScreen({ route, navigation }) {
             .content { padding: 20px 28px; }
             .section-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
             table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th { background: #4f46e5; color: white; padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; }
+            th { background: ${book.color || '#4f46e5'}; color: white; padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; }
             td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; }
             tr:nth-child(even) td { background: #f8fafc; }
             .footer { padding: 16px 28px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; text-align: center; }
@@ -342,7 +343,7 @@ export default function BookDetailScreen({ route, navigation }) {
         <body>
           <div class="header">
             <h1>Spendora — ${book.name}</h1>
-            <p>${reportTitle} Report</p>
+            <p>${book.description || reportTitle} Report</p>
           </div>
           <div class="summary">
             <div class="summary-item">
@@ -420,13 +421,15 @@ export default function BookDetailScreen({ route, navigation }) {
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
       {/* ── Header ── */}
-      <View style={s.header}>
+      <View style={[s.header, { backgroundColor: book?.color || '#0f172a' }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={s.backBtn}>
           <Text style={s.backBtnText}>←</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={s.headerTitle} numberOfLines={1}>{book?.name || bookName}</Text>
-          <Text style={s.headerSub}>{entries.length} entr{entries.length !== 1 ? 'ies' : 'y'}</Text>
+          <Text style={[s.headerSub, { color: book?.color ? 'rgba(255,255,255,0.7)' : '#64748b' }]}>
+            {book?.description ? book.description : `${entries.length} entr${entries.length !== 1 ? 'ies' : 'y'}`}
+          </Text>
         </View>
         <TouchableOpacity onPress={() => setShowReport(true)} style={s.reportBtn}>
           <Text style={{ fontSize: 18 }}>📊</Text>
@@ -528,73 +531,76 @@ export default function BookDetailScreen({ route, navigation }) {
 
       {/* ══ Add Entry Modal ══ */}
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={s.sheetOverlay}>
-          <View style={s.sheet}>
-            <View style={[s.sheetHeader, { backgroundColor: entryType === 'cash_in' ? '#16a34a' : '#dc2626' }]}>
-              <Text style={s.sheetHeaderText}>{entryType === 'cash_in' ? '↑ Cash In' : '↓ Cash Out'} Entry</Text>
-              <TouchableOpacity onPress={() => setShowModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 26, lineHeight: 28 }}>×</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={{ padding: 20 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-              <Text style={s.fieldLabel}>AMOUNT (₹) *</Text>
-              <View style={s.amountRow}>
-                <Text style={s.amountPrefix}>₹</Text>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+          <View style={s.sheetOverlay}>
+            <View style={s.sheet}>
+              <View style={[s.sheetHeader, { backgroundColor: entryType === 'cash_in' ? '#16a34a' : '#dc2626' }]}>
+                <Text style={s.sheetHeaderText}>{entryType === 'cash_in' ? '↑ Cash In' : '↓ Cash Out'} Entry</Text>
+                <TouchableOpacity onPress={() => setShowModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                  <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 26, lineHeight: 28 }}>×</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={{ padding: 20 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                <Text style={s.fieldLabel}>AMOUNT (₹) *</Text>
+                <View style={s.amountRow}>
+                  <Text style={s.amountPrefix}>₹</Text>
+                  <TextInput
+                    style={s.amountInput}
+                    placeholder="0.00"
+                    placeholderTextColor="#334155"
+                    value={amount}
+                    onChangeText={setAmount}
+                    keyboardType="decimal-pad"
+                    autoFocus
+                  />
+                </View>
+
+                {/* Date and other fields... */}
+                <Text style={[s.fieldLabel, { marginTop: 18 }]}>DATE</Text>
                 <TextInput
-                  style={s.amountInput}
-                  placeholder="0.00"
-                  placeholderTextColor="#334155"
-                  value={amount}
-                  onChangeText={setAmount}
-                  keyboardType="decimal-pad"
-                  autoFocus
+                  style={s.fieldInput}
+                  value={entryDate}
+                  onChangeText={setEntryDate}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#475569"
                 />
-              </View>
 
-              <Text style={[s.fieldLabel, { marginTop: 18 }]}>DATE</Text>
-              <TextInput
-                style={s.fieldInput}
-                value={entryDate}
-                onChangeText={setEntryDate}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#475569"
-              />
+                <Text style={[s.fieldLabel, { marginTop: 18 }]}>PAYMENT MODE</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {PAYMENT_MODES.map(m => (
+                    <TouchableOpacity
+                      key={m} style={[s.modeChip, paymentMode === m && s.modeChipActive]}
+                      onPress={() => setPaymentMode(m)}
+                    >
+                      <Text style={[s.modeChipText, paymentMode === m && { color: '#fff' }]}>{m}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
-              <Text style={[s.fieldLabel, { marginTop: 18 }]}>PAYMENT MODE</Text>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                {PAYMENT_MODES.map(m => (
-                  <TouchableOpacity
-                    key={m} style={[s.modeChip, paymentMode === m && s.modeChipActive]}
-                    onPress={() => setPaymentMode(m)}
-                  >
-                    <Text style={[s.modeChipText, paymentMode === m && { color: '#fff' }]}>{m}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                <Text style={[s.fieldLabel, { marginTop: 18 }]}>REMARK / NOTE</Text>
+                <TextInput
+                  style={[s.fieldInput, { height: 80, textAlignVertical: 'top', paddingTop: 12 }]}
+                  placeholder="What is this for?"
+                  placeholderTextColor="#475569"
+                  value={remark}
+                  onChangeText={setRemark}
+                  multiline
+                />
 
-              <Text style={[s.fieldLabel, { marginTop: 18 }]}>REMARK / NOTE</Text>
-              <TextInput
-                style={[s.fieldInput, { height: 80, textAlignVertical: 'top', paddingTop: 12 }]}
-                placeholder="What is this for?"
-                placeholderTextColor="#475569"
-                value={remark}
-                onChangeText={setRemark}
-                multiline
-              />
-
-              <TouchableOpacity
-                style={[s.submitBtn, { backgroundColor: entryType === 'cash_in' ? '#16a34a' : '#dc2626' }, formLoading && { opacity: 0.6 }]}
-                onPress={handleAddEntry}
-                disabled={formLoading}
-              >
-                {formLoading
-                  ? <ActivityIndicator color="#fff" />
-                  : <Text style={s.submitBtnText}>Save {entryType === 'cash_in' ? 'Cash In' : 'Cash Out'}</Text>}
-              </TouchableOpacity>
-              <View style={{ height: 24 }} />
-            </ScrollView>
+                <TouchableOpacity
+                  style={[s.submitBtn, { backgroundColor: entryType === 'cash_in' ? '#16a34a' : '#dc2626' }, formLoading && { opacity: 0.6 }]}
+                  onPress={handleAddEntry}
+                  disabled={formLoading}
+                >
+                  {formLoading
+                    ? <ActivityIndicator color="#fff" />
+                    : <Text style={s.submitBtnText}>Save {entryType === 'cash_in' ? 'Cash In' : 'Cash Out'}</Text>}
+                </TouchableOpacity>
+                <View style={{ height: 40 }} />
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ══ Delete Confirm Modal ══ */}

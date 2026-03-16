@@ -1,6 +1,23 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Landing() {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if user is already logged in
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
+            credentials: "include"
+        })
+            .then(res => {
+                if (res.ok) {
+                    navigate("/books");
+                }
+            })
+            .catch(() => {});
+    }, [navigate]);
+
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-indigo-500/30 transition-colors duration-300 flex flex-col overflow-hidden relative">
 

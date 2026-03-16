@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -6,9 +6,21 @@ function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    useEffect(() => {
+        // Redirect if already logged in
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
+            credentials: "include"
+        })
+            .then(res => {
+                if (res.ok) navigate("/books");
+            })
+            .catch(() => {});
+    }, [navigate]);
+
+    const handleRegister = async (e) => {
         e.preventDefault();
 
         try {
@@ -37,7 +49,7 @@ function Register() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
                 <h2 className="text-3xl font-bold mb-8 text-center tracking-tight text-white">Create Account</h2>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                <form onSubmit={handleRegister} className="flex flex-col gap-5">
                     <div>
                         <input
                             type="text"

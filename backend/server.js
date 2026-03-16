@@ -13,7 +13,6 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
 import exportRoutes from "./routes/exportRoutes.js";
-import ledgerRoutes from "./routes/ledgerRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -62,7 +61,6 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/export", exportRoutes);
-app.use("/api/ledger", ledgerRoutes);
 app.use("/api/upload", uploadRoutes);
 
 // Serve uploads directory statically

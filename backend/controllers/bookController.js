@@ -2,12 +2,12 @@ import pool from "../config/db.js";
 
 export const createBook = async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, description, color, is_archived } = req.body;
         const userId = req.userId;
 
         const result = await pool.query(
-            "INSERT INTO books (name, created_by) VALUES ($1, $2) RETURNING *",
-            [name, userId]
+            "INSERT INTO books (name, description, color, is_archived, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [name, description || null, color || '#4f46e5', is_archived || false, userId]
         );
 
         res.status(201).json(result.rows[0]);
@@ -30,7 +30,7 @@ export const getBooks = async (req, res) => {
             LEFT JOIN book_entries e ON b.id = e.book_id
             WHERE b.created_by = $1
             GROUP BY b.id
-            ORDER BY b.created_at DESC
+            ORDER BY b.is_archived ASC, b.created_at DESC
         `, [userId]);
 
         res.json(result.rows);
@@ -145,14 +145,29 @@ export const deleteEntry = async (req, res) => {
 export const updateBook = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name } = req.body;
+        const { name, description, color, is_archived } = req.body;
         const userId = req.userId;
         const check = await pool.query("SELECT * FROM books WHERE id = $1 AND created_by = $2", [id, userId]);
         if (check.rows.length === 0) return res.status(404).json({ error: "Book not found" });
-        const result = await pool.query(
-            "UPDATE books SET name = $1 WHERE id = $2 RETURNING *",
-            [name, id]
-        );
+
+        // Build dynamic query to update only provided fields
+        const updates = [];
+        const values = [];
+        let index = 1;
+
+        if (name !== undefined) { updates.push(`name = $${index++}`); values.push(name); }
+        if (description !== undefined) { updates.push(`description = $${index++}`); values.push(description); }
+        if (color !== undefined) { updates.push(`color = $${index++}`); values.push(color); }
+        if (is_archived !== undefined) { updates.push(`is_archived = $${index++}`); values.push(is_archived); }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: "No fields provided to update" });
+        }
+
+        values.push(id);
+        const query = `UPDATE books SET ${updates.join(', ')} WHERE id = $${index} RETURNING *`;
+
+        const result = await pool.query(query, values);
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });

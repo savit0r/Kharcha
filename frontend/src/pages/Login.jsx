@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -10,6 +10,17 @@ function Login() {
     const [otpSent, setOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Redirect if already logged in
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
+            credentials: "include"
+        })
+            .then(res => {
+                if (res.ok) navigate("/books");
+            })
+            .catch(() => {});
+    }, [navigate]);
 
     // Password login
     const handlePasswordLogin = async (e) => {
