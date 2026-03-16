@@ -19,12 +19,14 @@
 
 ---
 
-**Spendora** is a full-stack, open-source cashbook and expense tracking application. It lets you manage multiple cashbooks, track cash in/out, manage a party ledger, set budgets, and generate professional reports — all in one place, across **web and mobile**.
+**Spendora** is a full-stack, open-source cashbook and expense tracking application. It lets you manage multiple cashbooks with custom themes, track income/expense entries, archive old books, and generate professional reports — all in one place, across **web and mobile**.
 
 ## ✨ Features
 
 ### 📒 Cashbooks
 - Create multiple cashbooks (e.g. Office, Personal, Trip)
+- **Customization**: Assign unique colors and descriptions to each book
+- **Archiving**: Archive old books to keep your workspace clean while retaining data
 - Add Cash In / Cash Out entries with remarks, date, payment mode
 - Search and filter entries by type
 - Date-grouped entry view with daily totals
@@ -35,10 +37,6 @@
 - Export as **PDF**, **Excel (.xlsx)**, or **CSV**
 - Branded PDF with summary header and striped table
 
-### 🤝 Party Ledger
-- Track money given to / received from anyone (customers, suppliers, friends)
-- Running balance per person — see who owes whom at a glance
-- Full credit/debit history per party
 
 ### 🏠 Dashboard
 - Unified net balance across all cashbooks
@@ -47,11 +45,14 @@
 
 ### 👤 Account
 - Register, login (password or OTP email)
+- **Persistent Sessions**: Stay logged in even after closing the app/tab
 - Activity log, profile details
-- Session-based authentication
+- Session-based authentication via HTTP-only cookies
 
 ### 📱 Mobile (React Native / Expo)
-- Full feature parity with web — all cashbook, ledger, and report features
+- Full feature parity with web — all cashbook and report features
+- **Responsive Design**: Optimized for all screen sizes (Android, iOS, Foldables)
+- **Intelligent Forms**: Keyboard-aware modals for seamless data entry
 - Offline-friendly UI with pull-to-refresh
 - Native share sheet for PDF/Excel/CSV
 - Works on Android and iOS via Expo Go
@@ -158,8 +159,6 @@ The schema includes:
 - `users` — authentication
 - `cashbooks` — book records  
 - `entries` — cash in/out transactions
-- `customers` — party ledger contacts
-- `ledger_entries` — credit/debit per party
 - `categories`, `budgets` — budgeting features
 - `activity_logs` — audit trail
 - `transactions` — general transaction log
