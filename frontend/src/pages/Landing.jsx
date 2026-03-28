@@ -7,7 +7,7 @@ function Landing() {
 
     useEffect(() => {
         // Check if user is already logged in
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
+        fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/me`, {
             credentials: "include"
         })
             .then(res => {

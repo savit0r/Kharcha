@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-const API = `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/books`;
+const API = `${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/books`;
 
 function BookDetails() {
     const { id } = useParams();

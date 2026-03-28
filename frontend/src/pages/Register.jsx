@@ -11,7 +11,7 @@ function Register() {
 
     useEffect(() => {
         // Redirect if already logged in
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
+        fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/me`, {
             credentials: "include"
         })
             .then(res => {
@@ -24,7 +24,7 @@ function Register() {
         e.preventDefault();
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/register`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password }),

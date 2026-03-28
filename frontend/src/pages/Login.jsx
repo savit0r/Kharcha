@@ -13,7 +13,7 @@ function Login() {
 
     useEffect(() => {
         // Redirect if already logged in
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
+        fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/me`, {
             credentials: "include"
         })
             .then(res => {
@@ -28,7 +28,7 @@ function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/login`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -65,7 +65,7 @@ function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/send-otp`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/send-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, type: "login" }),
@@ -100,7 +100,7 @@ function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/verify-otp`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/verify-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

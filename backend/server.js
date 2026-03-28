@@ -29,7 +29,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: [
+        process.env.CLIENT_URL,
+        "http://localhost:5173",
+        "https://kharcha-4u5y.onrender.com" // Just in case backend talks to itself or frontend is hosted there
+    ].filter(Boolean),
     credentials: true,
 }));
 
