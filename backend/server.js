@@ -32,7 +32,8 @@ app.use(cors({
     origin: [
         process.env.CLIENT_URL,
         "http://localhost:5173",
-        "https://kharcha-4u5y.onrender.com" // Just in case backend talks to itself or frontend is hosted there
+        "https://kharcha-mauve.vercel.app", // Deployed Vercel frontend
+        "https://kharcha-4u5y.onrender.com" // Backend itself
     ].filter(Boolean),
     credentials: true,
 }));
