@@ -25,16 +25,38 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+const defaultCorsOrigins = [
+    "http://localhost:5173",
+    "https://kharcha-mauve.vercel.app",
+    "https://kharcha-4u5y.onrender.com",
+];
+
+const extraOrigins = (process.env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+const corsAllowedOrigins = [
+    ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+    ...extraOrigins,
+    ...defaultCorsOrigins,
+];
+
+const corsOriginSet = new Set(corsAllowedOrigins);
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: [
-        process.env.CLIENT_URL,
-        "http://localhost:5173",
-        "https://kharcha-mauve.vercel.app", // Deployed Vercel frontend
-        "https://kharcha-4u5y.onrender.com" // Backend itself
-    ].filter(Boolean),
+    origin(origin, callback) {
+        if (!origin) {
+            return callback(null, true);
+        }
+        if (corsOriginSet.has(origin)) {
+            return callback(null, true);
+        }
+        callback(null, false);
+    },
     credentials: true,
 }));
 

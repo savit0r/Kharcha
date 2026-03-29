@@ -121,6 +121,7 @@ npm run dev
 | `SMTP_USER` | SMTP login email |
 | `SMTP_PASS` | SMTP password |
 | `CLIENT_URL` | Frontend URL for CORS (default: `http://localhost:5173`) |
+| `ALLOWED_ORIGINS` | Optional comma-separated extra origins (e.g. Vercel previews) |
 
 See [`.env.example`](backend/.env.example) for all options.
 </details>

@@ -1,9 +1,13 @@
 import jwt from "jsonwebtoken";
 
+const isProd = process.env.NODE_ENV === "production";
+
+// Cross-site SPA (e.g. Vercel) → API on another host needs SameSite=None + Secure.
+// Local dev: lax + optional secure works for localhost↔localhost.
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
 };
 
 // Generate access + refresh tokens and set as cookies
