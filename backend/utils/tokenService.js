@@ -8,6 +8,7 @@ const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
+    path: "/",
 };
 
 // Generate access + refresh tokens and set as cookies
