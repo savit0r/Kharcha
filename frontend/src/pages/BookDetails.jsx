@@ -371,30 +371,30 @@ function BookDetails() {
             )}
 
             {/* Fixed Bottom Action Buttons */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-neutral-50 dark:from-neutral-900 via-neutral-50/90 dark:via-neutral-900/90 to-transparent md:pl-64 z-20 pointer-events-none">
-                <div className="max-w-3xl mx-auto flex gap-3 pointer-events-auto">
+            <div className="fixed bottom-0 left-0 right-0 px-3 sm:px-4 pt-4 pb-20 md:pb-4 bg-gradient-to-t from-neutral-50 dark:from-neutral-900 via-neutral-50/90 dark:via-neutral-900/90 to-transparent md:pl-60 z-20 pointer-events-none">
+                <div className="max-w-3xl mx-auto flex gap-2 sm:gap-3 pointer-events-auto">
                     <button
                         onClick={() => openModal("cash_in")}
-                        className="flex-1 bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-600/25"
+                        className="flex-1 bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold py-3.5 sm:py-4 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base transition-all shadow-lg shadow-green-600/25 whitespace-nowrap"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-                        CASH IN
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                        <span>CASH IN</span>
                     </button>
                     <button
                         onClick={() => openModal("cash_out")}
-                        className="flex-1 bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-600/25"
+                        className="flex-1 bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold py-3.5 sm:py-4 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base transition-all shadow-lg shadow-red-600/25 whitespace-nowrap"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
-                        CASH OUT
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
+                        <span>CASH OUT</span>
                     </button>
                 </div>
             </div>
 
             {/* Add Entry Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-sm max-h-[90vh] overflow-y-auto">
-                        <div className={`p-5 flex justify-between items-center ${entryType === "cash_in" ? "bg-green-600" : "bg-red-600"}`}>
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 sm:border rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-sm max-h-[90vh] flex flex-col">
+                        <div className={`p-4 sm:p-5 flex justify-between items-center sm:rounded-t-2xl rounded-t-3xl ${entryType === "cash_in" ? "bg-green-600" : "bg-red-600"} flex-shrink-0`}>
                             <h3 className="font-bold text-lg text-white">
                                 {entryType === "cash_in" ? "Cash In" : "Cash Out"} Entry
                             </h3>
@@ -402,7 +402,8 @@ function BookDetails() {
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
-                        <form onSubmit={handleAddEntry} className="p-5 flex flex-col gap-4">
+                        <div className="overflow-y-auto flex-1">
+                            <form onSubmit={handleAddEntry} className="p-4 sm:p-5 pb-8 sm:pb-5 flex flex-col gap-4">
                             <div>
                                 <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wide block mb-1.5">Amount (₹) *</label>
                                 <div className="relative">
@@ -425,10 +426,10 @@ function BookDetails() {
                             </div>
                             <div>
                                 <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wide block mb-1.5">Payment Mode</label>
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                                     {["Cash", "Online", "Bank Transfer"].map(m => (
                                         <button key={m} type="button" onClick={() => setPaymentMode(m)}
-                                            className={`py-2 rounded-xl text-xs font-semibold border transition-all ${paymentMode === m ? "bg-indigo-600 border-indigo-600 text-white" : "border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:border-indigo-400"}`}>
+                                            className={`py-2 px-1 sm:px-2 rounded-xl text-[11px] sm:text-xs font-semibold border transition-all leading-tight flex items-center justify-center text-center ${paymentMode === m ? "bg-indigo-600 border-indigo-600 text-white" : "border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:border-indigo-400"}`}>
                                             {m}
                                         </button>
                                     ))}
@@ -444,18 +445,19 @@ function BookDetails() {
                             </div>
                             <button
                                 type="submit" disabled={formLoading}
-                                className={`w-full py-3.5 rounded-xl font-bold tracking-wide transition-colors disabled:opacity-50 text-white ${entryType === "cash_in" ? "bg-green-600 hover:bg-green-500" : "bg-red-600 hover:bg-red-500"}`}
+                                className={`w-full py-3.5 mt-2 rounded-xl font-bold tracking-wide transition-colors disabled:opacity-50 text-white ${entryType === "cash_in" ? "bg-green-600 hover:bg-green-500" : "bg-red-600 hover:bg-red-500"}`}
                             >
                                 {formLoading ? "Saving..." : `Save ${entryType === "cash_in" ? "Cash In" : "Cash Out"}`}
                             </button>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* Delete Entry Confirm */}
             {deleteEntry && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                     <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm p-6">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
@@ -479,7 +481,7 @@ function BookDetails() {
 
             {/* Report Modal */}
             {showReportModal && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
                     <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
                         <div className="p-5 bg-indigo-600 flex justify-between items-center">
                             <div>
