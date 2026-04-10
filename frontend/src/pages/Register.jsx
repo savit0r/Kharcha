@@ -44,8 +44,9 @@ function Register() {
     const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
-            credentials: "include",
+        // Redirect if already logged in
+        fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/me`, {
+            credentials: "include"
         })
             .then((res) => { if (res.ok) navigate("/books"); })
             .catch(() => {});
@@ -54,14 +55,12 @@ function Register() {
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        if (!allRulesPassed) {
-            toast.error("Password does not meet the security requirements.");
-            return;
-        }
-        if (!passwordsMatch) {
-            toast.error("Passwords do not match.");
-            return;
-        }
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password }),
+            });
 
         setLoading(true);
         try {
