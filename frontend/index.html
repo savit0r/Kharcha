@@ -3,9 +3,38 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spendora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Theme color for browser chrome -->
+  <meta name="theme-color" content="#6366f1" />
+
+  <!-- iOS PWA support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Spendora" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png" />
+
+  <!-- SEO -->
+  <title>Spendora — Smart Expense Tracker</title>
+  <meta name="description" content="Spendora helps you track expenses, manage cashbooks, and stay in control of your finances. Available on Android and iPhone." />
+  <meta name="keywords" content="expense tracker, cashbook, budgeting, spending, finance app" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Spendora — Smart Expense Tracker" />
+  <meta property="og:description" content="Track expenses, manage cashbooks, and stay on top of your finances." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/icons/icon-512x512.png" />
+
+  <!-- Mobile optimizations -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="format-detection" content="telephone=no" />
 </head>
 
 <body

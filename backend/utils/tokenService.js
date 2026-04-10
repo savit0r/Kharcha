@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",   // "lax" is required for PWA/mobile installs; still blocks CSRF from 3rd-party sites
+    path: "/",         // Ensure cookies are sent on every route
 };
 
 // Generate access + refresh tokens and set as cookies
