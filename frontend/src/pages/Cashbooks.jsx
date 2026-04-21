@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-const API = `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/books`;
+const API = `${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/books`;
 
 function Cashbooks() {
     const [books, setBooks] = useState([]);
@@ -14,7 +14,7 @@ function Cashbooks() {
     const [description, setDescription] = useState("");
     const [color, setColor] = useState("#4f46e5");
     const [isArchived, setIsArchived] = useState(false);
-    
+
     // UI state
     const [activeTab, setActiveTab] = useState("active"); // "active" | "archived"
     const [formLoading, setFormLoading] = useState(false);
@@ -143,11 +143,11 @@ function Cashbooks() {
     };
 
     const searchedBooks = books.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
-    
+
     // Filter active vs archived
     const activeBooks = searchedBooks.filter(b => !b.is_archived);
     const archivedBooks = searchedBooks.filter(b => b.is_archived);
-    
+
     const displayBooks = activeTab === "active" ? activeBooks : archivedBooks;
 
     const totalIn = displayBooks.reduce((acc, b) => acc + Number(b.total_in), 0);
@@ -208,17 +208,15 @@ function Cashbooks() {
                     <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl w-full sm:w-auto self-start">
                         <button
                             onClick={() => setActiveTab("active")}
-                            className={`flex-1 sm:px-6 py-2 text-sm font-semibold rounded-lg transition-all ${
-                                activeTab === "active" ? "bg-white dark:bg-neutral-700 shadow text-neutral-900 dark:text-neutral-100" : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-                            }`}
+                            className={`flex-1 sm:px-6 py-2 text-sm font-semibold rounded-lg transition-all ${activeTab === "active" ? "bg-white dark:bg-neutral-700 shadow text-neutral-900 dark:text-neutral-100" : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                                }`}
                         >
                             Active ({activeBooks.length})
                         </button>
                         <button
                             onClick={() => setActiveTab("archived")}
-                            className={`flex-1 sm:px-6 py-2 text-sm font-semibold rounded-lg transition-all ${
-                                activeTab === "archived" ? "bg-white dark:bg-neutral-700 shadow text-neutral-900 dark:text-neutral-100" : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-                            }`}
+                            className={`flex-1 sm:px-6 py-2 text-sm font-semibold rounded-lg transition-all ${activeTab === "archived" ? "bg-white dark:bg-neutral-700 shadow text-neutral-900 dark:text-neutral-100" : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                                }`}
                         >
                             Archived ({archivedBooks.length})
                         </button>
@@ -267,7 +265,7 @@ function Cashbooks() {
                     {displayBooks.map((b) => (
                         <div key={b.id} className={`group relative bg-white dark:bg-neutral-800 border ${b.is_archived ? 'border-neutral-200 dark:border-neutral-700 opacity-75' : 'border-neutral-200 dark:border-neutral-700 hover:border-indigo-300 dark:hover:border-indigo-700'} rounded-2xl hover:shadow-md transition-all duration-200`}>
                             <Link to={`/books/${b.id}`} className="flex items-center gap-4 p-4 pr-12">
-                                <div 
+                                <div
                                     className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-sm"
                                     style={{ backgroundColor: b.color || '#4f46e5' }}
                                 >
@@ -298,7 +296,7 @@ function Cashbooks() {
                                     onClick={(e) => { e.preventDefault(); setOpenMenu(openMenu === b.id ? null : b.id); }}
                                     className="p-2 rounded-lg text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors bg-white/50 dark:bg-neutral-800/50 backdrop-blur-sm"
                                 >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></svg>
                                 </button>
                                 {openMenu === b.id && (
                                     <div className="absolute right-0 top-10 w-40 z-50 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl py-1.5">
@@ -361,7 +359,7 @@ function Cashbooks() {
                                     maxLength={60}
                                 />
                             </div>
-                            
+
                             <div>
                                 <label className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 block mb-1.5 uppercase tracking-wide">Description (Optional)</label>
                                 <input

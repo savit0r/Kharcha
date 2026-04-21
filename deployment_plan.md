@@ -42,9 +42,9 @@ This is the engine that runs your Node.js code.
 3. Connect your GitHub account and select your `Kharcha` repository.
 4. **Crucial Settings**:
    - **Name**: `spendora-api`
-   - **Root Directory**: `spendora/backend`
+   - **Root Directory**: `backend` (must match the folder that contains `server.js` in this repo)
    - **Build Command**: `npm install`
-   - **Start Command**: `node server.js`
+   - **Start Command**: `npm start` (runs `node server.js` per `package.json`)
 5. Scroll down to **Environment Variables** and add these:
    - `DATABASE_URL` = (Your Neon URL)
    - `REDIS_URL` = (Your Upstash URL)
@@ -52,6 +52,7 @@ This is the engine that runs your Node.js code.
    - `JWT_REFRESH_SECRET` = (Type another random string)
    - `PORT` = `3000`
    - `CLIENT_URL` = (Keep empty for now, we will update this later).
+   - Optional: `ALLOWED_ORIGINS` = comma-separated extra origins (e.g. Vercel preview URLs).
 6. Click **Create Web Service**.
 7. **👉 ACTION**: Once deployed, copy the URL at the top (e.g., `https://spendora-api.onrender.com`).
 
@@ -64,7 +65,7 @@ This is what users see in their browsers.
 2. Click **Add New** > **Project**.
 3. Import your `Kharcha` repository.
 4. **Edit Settings**:
-   - **Root Directory**: `spendora/frontend`
+   - **Root Directory**: `frontend`
    - **Framework Preset**: Vite (should be auto-detected).
 5. **Environment Variables**:
    - Add `VITE_API_URL`
@@ -80,8 +81,9 @@ Now we must tell the Backend that it's okay to talk to your Website.
 1. Go back to your **Render** dashboard.
 2. Select your `spendora-api`.
 3. Go to **Environment**.
-4. Edit `CLIENT_URL` and paste your **Vercel URL** (e.g., `https://spendora-app.vercel.app`).
+4. Edit `CLIENT_URL` and paste your **Vercel URL** (e.g., `https://kharcha-mauve.vercel.app`, no trailing slash).
 5. Save changes. Render will restart automatically.
+6. If CORS still fails after a code change, use **Manual Deploy → Clear build cache & deploy** so Render runs the latest `backend/server.js`.
 
 ---
 
@@ -90,7 +92,7 @@ Currently, you use the "Expo Go" app and a QR code. But if you turn off your com
 
 ### Step 1: Tell the app where the Internet is
 Your app currently looks for your "Computer's IP". Now that your backend is on the internet (Render), we must tell the app to go there.
-1. Open `spendora/mobile/src/api.js`.
+1. Open `mobile/src/api.js`.
 2. Change the `API_BASE_URL` to your **Render URL**:
    ```javascript
    // Tell the app to talk to the live server on the internet

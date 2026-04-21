@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "../api";
 
-const API = `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/activity`;
+const activityApi = `${API_BASE_URL}/activity`;
 
 function ActivityFeed() {
     const [activities, setActivities] = useState([]);
@@ -9,7 +10,7 @@ function ActivityFeed() {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                const res = await fetch(`${API}?limit=5`, { credentials: "include" });
+                const res = await fetch(`${activityApi}?limit=5`, { credentials: "include" });
                 const data = await res.json();
                 if (Array.isArray(data)) setActivities(data);
             } catch (error) {

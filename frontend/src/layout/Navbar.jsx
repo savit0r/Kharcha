@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
+import { API_BASE_URL } from "../api";
 
 function Navbar() {
     const navigate = useNavigate();
@@ -14,11 +15,14 @@ function Navbar() {
 
     const handleLogout = async () => {
         try {
-            await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/logout`, {
+            const res = await fetch(`${API_BASE_URL}/auth/logout`, {
                 method: "POST",
                 credentials: "include",
             });
-            navigate("/login");
+            if (!res.ok) {
+                console.error("Logout request failed:", res.status);
+            }
+            navigate("/login", { replace: true });
         } catch (error) {
             console.error("Logout failed:", error);
         }

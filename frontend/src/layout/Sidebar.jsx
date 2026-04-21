@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "../api";
 
 function Sidebar() {
     const navigate = useNavigate();
@@ -8,7 +9,7 @@ function Sidebar() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
+                const res = await fetch(`${API_BASE_URL}/auth/me`, {
                     credentials: "include"
                 });
                 if (res.ok) setUser(await res.json());
@@ -21,10 +22,14 @@ function Sidebar() {
 
     const handleLogout = async () => {
         try {
-            await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/logout`, {
-                method: "POST", credentials: "include",
+            const res = await fetch(`${API_BASE_URL}/auth/logout`, {
+                method: "POST",
+                credentials: "include",
             });
-            navigate("/login");
+            if (!res.ok) {
+                console.error("Logout request failed:", res.status);
+            }
+            navigate("/login", { replace: true });
         } catch (error) {
             console.error("Logout failed:", error);
         }
