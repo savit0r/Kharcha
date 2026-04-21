@@ -7,8 +7,8 @@ const isProd = process.env.NODE_ENV === "production";
 const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? "none" : "lax",
-    path: "/",
+    sameSite: "lax",   // "lax" is required for PWA/mobile installs; still blocks CSRF from 3rd-party sites
+    path: "/",         // Ensure cookies are sent on every route
 };
 
 // Generate access + refresh tokens and set as cookies

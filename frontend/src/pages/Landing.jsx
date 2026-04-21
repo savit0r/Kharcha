@@ -1,9 +1,22 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import LoginModal from "../components/modals/LoginModal";
+import RegisterModal from "../components/modals/RegisterModal";
 
 function Landing() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showRegisterModal, setShowRegisterModal] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        if (queryParams.get("login") === "true") {
+            setShowLoginModal(true);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, [location]);
 
     useEffect(() => {
         // Check if user is already logged in
@@ -34,16 +47,16 @@ function Landing() {
                         </svg>
                     </div>
                     <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-300">
-                        Spendora
+                        HisabFlow
                     </span>
                 </div>
                 <div className="flex items-center gap-4 text-sm font-medium">
-                    <Link to="/login" className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors">
+                    <button onClick={() => setShowLoginModal(true)} className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors">
                         Log in
-                    </Link>
-                    <Link to="/register" className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-5 py-2.5 rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5">
+                    </button>
+                    <button onClick={() => setShowRegisterModal(true)} className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-5 py-2.5 rounded-full hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5">
                         Get Started
-                    </Link>
+                    </button>
                 </div>
             </nav>
 
@@ -58,28 +71,28 @@ function Landing() {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                             </span>
-                            Smart Finance Tracker
+                            The Modern Ledger Platform
                         </div>
 
                         <h1 className="text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-900 dark:text-white mb-6 leading-[1.1]">
-                            Take control of <br className="hidden lg:block" />
+                            Maintain perfect <br className="hidden lg:block" />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-400">
-                                your money.
+                                financial ledgers.
                             </span>
                         </h1>
 
                         <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-10 max-w-xl leading-relaxed">
-                            Effortlessly track expenses, manage granular budgets, and maintain personal ledgers with your friends—all in one beautiful place.
+                            Effortlessly manage multiple cashbooks, track party balances, and maintain crystal-clear accounting ledgers with your customers and friends—all in one beautiful place.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                            <Link to="/register" className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5 text-lg">
-                                Start Tracking Free
+                            <button onClick={() => setShowRegisterModal(true)} className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5 text-lg">
+                                Start Maintaining Free
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                            </Link>
-                            <Link to="/login" className="flex items-center justify-center gap-2 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 px-8 py-4 rounded-xl font-bold hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all shadow-sm hover:shadow text-lg">
+                            </button>
+                            <button onClick={() => setShowLoginModal(true)} className="flex items-center justify-center gap-2 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 px-8 py-4 rounded-xl font-bold hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all shadow-sm hover:shadow text-lg">
                                 Sign In
-                            </Link>
+                            </button>
                         </div>
 
                         <div className="mt-12 flex items-center justify-center lg:justify-start gap-8 text-neutral-400 dark:text-neutral-500 font-medium text-sm">
@@ -167,6 +180,25 @@ function Landing() {
 
                 </div>
             </main>
+
+            {showLoginModal && (
+                <LoginModal 
+                    onClose={() => setShowLoginModal(false)} 
+                    onSwitchToRegister={() => {
+                        setShowLoginModal(false);
+                        setShowRegisterModal(true);
+                    }} 
+                />
+            )}
+            {showRegisterModal && (
+                <RegisterModal 
+                    onClose={() => setShowRegisterModal(false)} 
+                    onSwitchToLogin={() => {
+                        setShowRegisterModal(false);
+                        setShowLoginModal(true);
+                    }} 
+                />
+            )}
         </div>
     );
 }
