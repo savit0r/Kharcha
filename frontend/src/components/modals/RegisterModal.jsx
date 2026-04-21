@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 // Password validation rules — must mirror backend authValidation.js
@@ -30,7 +30,7 @@ function PasswordChecklist({ password }) {
     );
 }
 
-function Register() {
+function RegisterModal({ onClose, onSwitchToLogin }) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -42,14 +42,6 @@ function Register() {
 
     const allRulesPassed = PASSWORD_RULES.every((r) => r.test(password));
     const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
-
-    useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
-            credentials: "include",
-        })
-            .then((res) => { if (res.ok) navigate("/books"); })
-            .catch(() => {});
-    }, [navigate]);
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -77,7 +69,7 @@ function Register() {
 
             if (res.ok) {
                 toast.success(data.message || "Account created successfully!");
-                setTimeout(() => navigate("/login"), 1500);
+                setTimeout(() => onSwitchToLogin(), 1500);
             } else {
                 toast.error(data.message || "Registration failed");
             }
@@ -89,13 +81,19 @@ function Register() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-200 p-4 selection:bg-indigo-500/30">
-            <div className="bg-slate-800 border border-slate-700/50 p-10 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm transition-opacity overflow-y-auto">
+            {/* Modal backdrop click to close */}
+            <div className="absolute inset-0" onClick={onClose}></div>
+
+            <div className="bg-slate-800 border border-slate-700/50 p-10 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden backdrop-blur-sm z-10 m-auto mt-10 mb-10">
+                 <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-slate-700">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
                 {/* Top accent bar */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
 
                 <h1 className="text-3xl font-bold mb-2 text-center tracking-tight text-white">Create Account</h1>
-                <p className="text-slate-400 text-sm text-center mb-8">Join Spendora and take control of your finances</p>
+                <p className="text-slate-400 text-sm text-center mb-8">Join HisabFlow and take control of your finances</p>
 
                 <form onSubmit={handleRegister} className="flex flex-col gap-5">
                     {/* Full Name */}
@@ -103,7 +101,6 @@ function Register() {
                         <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Full Name</label>
                         <input
                             type="text"
-                            id="register-name"
                             placeholder="John Doe"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -117,7 +114,6 @@ function Register() {
                         <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Email Address</label>
                         <input
                             type="email"
-                            id="register-email"
                             placeholder="you@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -132,7 +128,6 @@ function Register() {
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
-                                id="register-password"
                                 placeholder="Create a strong password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -144,7 +139,6 @@ function Register() {
                                 type="button"
                                 onClick={() => setShowPassword((v) => !v)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-1"
-                                aria-label={showPassword ? "Hide password" : "Show password"}
                             >
                                 {showPassword ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,14 +171,6 @@ function Register() {
                                         />
                                     ))}
                                 </div>
-                                <p className="text-xs mt-1 text-slate-500">
-                                    {PASSWORD_RULES.filter((r) => r.test(password)).length === 5
-                                        ? <span className="text-emerald-400">Strong password ✓</span>
-                                        : PASSWORD_RULES.filter((r) => r.test(password)).length >= 3
-                                        ? <span className="text-yellow-400">Moderate — add more complexity</span>
-                                        : <span className="text-red-400">Weak password</span>
-                                    }
-                                </p>
                             </div>
                         )}
                     </div>
@@ -195,7 +181,6 @@ function Register() {
                         <div className="relative">
                             <input
                                 type={showConfirm ? "text" : "password"}
-                                id="register-confirm-password"
                                 placeholder="Repeat your password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -213,7 +198,6 @@ function Register() {
                                 type="button"
                                 onClick={() => setShowConfirm((v) => !v)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-1"
-                                aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
                             >
                                 {showConfirm ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -238,33 +222,22 @@ function Register() {
                     {/* Submit */}
                     <button
                         type="submit"
-                        id="register-submit"
                         disabled={loading || !allRulesPassed || !passwordsMatch}
                         className="mt-2 bg-indigo-600 text-white py-3.5 rounded-xl hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-500/50 font-medium tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                                </svg>
-                                Creating account…
-                            </span>
-                        ) : (
-                            "Create Account"
-                        )}
+                        {loading ? "Creating account…" : "Create Account"}
                     </button>
                 </form>
 
                 <p className="text-sm text-center mt-8 text-slate-400">
                     Already have an account?{" "}
-                    <Link to="/login" className="text-indigo-400 font-medium hover:text-indigo-300 hover:underline transition-colors">
+                    <button type="button" onClick={onSwitchToLogin} className="text-indigo-400 font-medium hover:text-indigo-300 hover:underline transition-colors">
                         Login
-                    </Link>
+                    </button>
                 </p>
             </div>
         </div>
     );
 }
 
-export default Register;
+export default RegisterModal;

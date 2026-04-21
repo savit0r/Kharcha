@@ -1,7 +1,7 @@
 {
-  "name": "Spendora — Expense Tracker",
-  "short_name": "Spendora",
-  "description": "Track your expenses, manage cashbooks, and stay on top of your finances.",
+  "name": "HisabFlow — Ledger Platform",
+  "short_name": "HisabFlow",
+  "description": "Manage cashbooks, track party balances, and maintain crystal-clear financial ledgers.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

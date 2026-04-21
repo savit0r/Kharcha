@@ -201,7 +201,7 @@ function BookDetails() {
         doc.rect(0, 0, doc.internal.pageSize.width, 30, "F");
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(16); doc.setFont("helvetica", "bold");
-        doc.text("Spendora", 14, 13);
+        doc.text("HisabFlow", 14, 13);
         doc.setFontSize(10); doc.setFont("helvetica", "normal");
         doc.text(`${book.name}  ·  ${getReportTitle()}`, 14, 23);
         doc.setTextColor(50, 50, 50);

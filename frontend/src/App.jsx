@@ -5,8 +5,6 @@ import Landing from "./pages/Landing";
 
 import Cashbooks from "./pages/Cashbooks";
 import BookDetails from "./pages/BookDetails";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 
 function App() {
   return (
@@ -16,9 +14,7 @@ function App() {
         {/* Public Landing Page */}
         <Route path="/" element={<Landing />} />
 
-        {/* Public */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* Public Routes Removed (Using Modals) */}
 
         {/* Protected Layout */}
         <Route element={<MainLayout />}>

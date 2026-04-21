@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-function Login() {
+function LoginModal({ onClose, onSwitchToRegister }) {
     const [mode, setMode] = useState("password"); // "password" or "otp"
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -10,17 +10,6 @@ function Login() {
     const [otpSent, setOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        // Redirect if already logged in
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/me`, {
-            credentials: "include"
-        })
-            .then(res => {
-                if (res.ok) navigate("/books");
-            })
-            .catch(() => {});
-    }, [navigate]);
 
     // Password login
     const handlePasswordLogin = async (e) => {
@@ -48,6 +37,7 @@ function Login() {
 
             if (res.ok) {
                 toast.success(data.message || "Login successful");
+                onClose();
                 navigate("/books");
             } else {
                 toast.error(data.message || "Login failed");
@@ -119,6 +109,7 @@ function Login() {
 
             if (res.ok) {
                 toast.success(data.message || "OTP Verified Successfully");
+                onClose();
                 navigate("/books");
             } else {
                 toast.error(data.message || "Verification failed");
@@ -131,8 +122,14 @@ function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-200 p-4 selection:bg-indigo-500/30">
-            <div className="bg-slate-800 border border-slate-700/50 p-10 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm transition-opacity overflow-y-auto">
+            {/* Modal backdrop click to close */}
+            <div className="absolute inset-0" onClick={onClose}></div>
+            
+            <div className="bg-slate-800 border border-slate-700/50 p-10 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden backdrop-blur-sm z-10 m-auto mt-10 mb-10">
+                <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-slate-700">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-400"></div>
                 <h2 className="text-3xl font-bold mb-8 text-center tracking-tight text-white">Welcome Back</h2>
 
@@ -233,11 +230,11 @@ function Login() {
 
                 <p className="text-sm text-center mt-8 text-slate-400">
                     Don't have an account?{" "}
-                    <Link to="/register" className="text-indigo-400 font-medium hover:text-indigo-300 hover:underline transition-colors">Register</Link>
+                    <button type="button" onClick={onSwitchToRegister} className="text-indigo-400 font-medium hover:text-indigo-300 hover:underline transition-colors">Register</button>
                 </p>
             </div>
         </div>
     );
 }
 
-export default Login;
+export default LoginModal;

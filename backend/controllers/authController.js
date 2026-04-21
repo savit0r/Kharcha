@@ -137,6 +137,53 @@ export const verifyOtp = async (req, res, next) => {
     }
 };
 
+// @desc    Refresh access token using refresh token cookie
+// @route   POST /api/auth/refresh
+// @access  Public (cookie-based)
+export const refreshToken = async (req, res, next) => {
+    try {
+        const token = req.cookies.refreshToken;
+
+        if (!token) {
+            return res.status(401).json({ message: "No refresh token. Please login again." });
+        }
+
+        // Dynamically import jwt here to keep it in scope
+        const jwt = (await import("jsonwebtoken")).default;
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        } catch {
+            clearAuthCookies(res);
+            return res.status(401).json({ message: "Refresh token expired. Please login again." });
+        }
+
+        // Issue a fresh access token only (don't rotate refresh token to keep it simple)
+        const newAccessToken = jwt.sign(
+            { userId: decoded.userId },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        const COOKIE_OPTIONS = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+        };
+
+        res.cookie("accessToken", newAccessToken, {
+            ...COOKIE_OPTIONS,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        res.status(200).json({ message: "Token refreshed", token: newAccessToken });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // @desc    Logout user
 // @route   POST /api/auth/logout
 // @access  Private
