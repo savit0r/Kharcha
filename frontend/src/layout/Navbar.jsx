@@ -10,7 +10,7 @@ function Navbar() {
     const getPageTitle = () => {
         if (location.pathname.startsWith("/books/")) return "Book Details";
         if (location.pathname === "/books") return "My Books";
-        return "Spendora";
+        return "HisabFlow";
     };
 
     const handleLogout = async () => {
