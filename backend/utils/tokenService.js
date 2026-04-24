@@ -7,7 +7,7 @@ const isProd = process.env.NODE_ENV === "production";
 const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: isProd,
-    sameSite: "lax",   // "lax" is required for PWA/mobile installs; still blocks CSRF from 3rd-party sites
+    sameSite: isProd ? "none" : "lax", // "none" is required for cross-site cookies (Vercel -> Render)
     path: "/",         // Ensure cookies are sent on every route
 };
 
