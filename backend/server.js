@@ -49,12 +49,24 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     origin(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) {
             return callback(null, true);
         }
+        // Allow exact matches
         if (corsOriginSet.has(origin)) {
             return callback(null, true);
         }
+        // Allow any local development port
+        if (origin.startsWith("http://localhost:")) {
+            return callback(null, true);
+        }
+        // Allow any Vercel deployment (for preview URLs)
+        if (origin.endsWith(".vercel.app")) {
+            return callback(null, true);
+        }
+        
+        console.warn(`[CORS Blocked] Origin not allowed: ${origin}`);
         callback(null, false);
     },
     credentials: true,

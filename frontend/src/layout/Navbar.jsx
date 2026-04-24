@@ -22,7 +22,7 @@ function Navbar() {
             if (!res.ok) {
                 console.error("Logout request failed:", res.status);
             }
-            navigate("/login", { replace: true });
+            navigate("/?login=true", { replace: true });
         } catch (error) {
             console.error("Logout failed:", error);
         }

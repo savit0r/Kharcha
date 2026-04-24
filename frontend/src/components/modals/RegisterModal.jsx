@@ -58,7 +58,7 @@ function RegisterModal({ onClose, onSwitchToLogin }) {
         setLoading(true);
         try {
             const res = await fetch(
-                `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/register`,
+                `${import.meta.env.VITE_API_URL || "https://kharcha-4u5y.onrender.com/api"}/auth/register`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
